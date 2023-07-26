@@ -33,6 +33,8 @@ export class UserController {
 
   @Post()
   addUser(@Body() user: CreateUserDto): UserEntity {
+    if (!user.password || !user.login)
+      throw new BadRequestException('Body does not contain required fields');
     const newUser: UserEntity = {
       id: '',
       password: user.password,
