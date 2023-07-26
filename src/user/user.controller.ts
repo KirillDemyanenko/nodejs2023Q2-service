@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -10,6 +12,7 @@ import {
 import UserEntity from '../entities/user.entity';
 import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
 import { CreateUserDto } from '../interfaces/createUserDTO';
+import { isUUID } from 'class-validator';
 
 @Controller('user')
 export class UserController {
@@ -20,8 +23,11 @@ export class UserController {
     return this.userService.getAll();
   }
 
-  @Get(':id')
+  @Get('/:id')
   GetUserById(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
+    if (!this.userService.get(id))
+      throw new NotFoundException(`User with id - ${id} not found!`);
     return this.userService.query((data) => data.id === id);
   }
 
