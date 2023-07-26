@@ -9,10 +9,11 @@ import {
 } from '@nestjs/common';
 import UserEntity from '../entities/user.entity';
 import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
+import { CreateUserDto } from '../interfaces/createUserDTO';
 
 @Controller('user')
 export class UserController {
-  constructor(private userService: InMemoryDBService<UserEntity>) {}
+  constructor(private readonly userService: InMemoryDBService<UserEntity>) {}
 
   @Get()
   getUsers() {
@@ -25,8 +26,16 @@ export class UserController {
   }
 
   @Post()
-  addUser(@Body() user: UserEntity): UserEntity {
-    return this.userService.create(user);
+  addUser(@Body() user: CreateUserDto): UserEntity {
+    const newUser: UserEntity = {
+      id: '',
+      password: user.password,
+      login: user.login,
+      createdAt: Date.now(),
+      version: 1,
+      updatedAt: Date.now(),
+    };
+    return this.userService.create(newUser);
   }
 
   @Put()
