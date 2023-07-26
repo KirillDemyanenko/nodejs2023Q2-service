@@ -27,7 +27,7 @@ export class UserController {
   }
 
   @Get(':id')
-  GetUserById(@Param('id') id: string): UserEntity[] {
+  getUserById(@Param('id') id: string): UserEntity[] {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     if (!this.userService.get(id))
       throw new NotFoundException(`User with id - ${id} not found!`);
@@ -50,7 +50,7 @@ export class UserController {
   }
 
   @Put(':id')
-  EditUser(@Param('id') id: string, @Body() passwords: UpdatePasswordDto) {
+  editUser(@Param('id') id: string, @Body() passwords: UpdatePasswordDto) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     const user: UserEntity = this.userService.get(id);
     if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
@@ -62,10 +62,10 @@ export class UserController {
 
   @HttpCode(204)
   @Delete(':id')
-  DeleteUser(@Param('id') id: string): void {
+  deleteUser(@Param('id') id: string): void {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
-    const user: UserEntity = this.userService.get(id);
-    if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
+    if (!this.userService.get(id))
+      throw new NotFoundException(`User with id - ${id} not found!`);
     return this.userService.delete(id);
   }
 }
