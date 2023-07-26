@@ -1,7 +1,6 @@
 import { InMemoryDBEntity } from '@nestjs-addons/in-memory-db';
 
 export default interface UserEntity extends InMemoryDBEntity {
-  id: string;
   login: string;
   password: string;
   version: number;

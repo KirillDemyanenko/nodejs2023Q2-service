@@ -1,6 +1,4 @@
-import { InMemoryDBEntity } from '@nestjs-addons/in-memory-db';
-
-export default interface FavoritesEntity extends InMemoryDBEntity {
+export default interface FavoritesEntity {
   artists: string[];
   albums: string[];
   tracks: string[];
