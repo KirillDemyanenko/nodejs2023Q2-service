@@ -22,12 +22,12 @@ export class UserController {
   constructor(private readonly userService: InMemoryDBService<UserEntity>) {}
 
   @Get()
-  getUsers() {
+  getUsers(): UserEntity[] {
     return this.userService.getAll();
   }
 
   @Get(':id')
-  GetUserById(@Param('id') id: string) {
+  GetUserById(@Param('id') id: string): UserEntity[] {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     if (!this.userService.get(id))
       throw new NotFoundException(`User with id - ${id} not found!`);
@@ -62,7 +62,7 @@ export class UserController {
 
   @HttpCode(204)
   @Delete(':id')
-  DeleteUser(@Param('id') id: string) {
+  DeleteUser(@Param('id') id: string): void {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     const user: UserEntity = this.userService.get(id);
     if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
