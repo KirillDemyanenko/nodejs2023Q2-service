@@ -9,6 +9,6 @@ async function bootstrap() {
   const yamlFile = fs.readFileSync('doc/api.yaml', 'utf8');
   const document = SwaggerModule.createDocument(app, YAML.load(yamlFile));
   SwaggerModule.setup('doc', app, document);
-  await app.listen(4000);
+  await app.listen(process.env.PORT || 4000);
 }
 bootstrap();
