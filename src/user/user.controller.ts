@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -11,8 +12,9 @@ import {
 } from '@nestjs/common';
 import UserEntity from '../entities/user.entity';
 import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
-import { CreateUserDto } from '../interfaces/createUserDTO';
+import CreateUserDto from '../interfaces/createUserDTO';
 import { isUUID } from 'class-validator';
+import UpdatePasswordDto from '../interfaces/updatePasswordDto';
 
 @Controller('user')
 export class UserController {
@@ -46,8 +48,14 @@ export class UserController {
     return this.userService.create(newUser);
   }
 
-  @Put()
-  EditUser(@Body() user: UserEntity) {
+  @Put('/:id')
+  EditUser(@Param('id') id: string, @Body() passwords: UpdatePasswordDto) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
+    const user: UserEntity = this.userService.get(id);
+    if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
+    if (user.password !== passwords.oldPassword)
+      throw new ForbiddenException(`Wrong old password!`);
+    user.password = passwords.newPassword;
     return this.userService.update(user);
   }
 
