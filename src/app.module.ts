@@ -4,9 +4,15 @@ import { AppService } from './app.service';
 import { TrackController } from './track/track.controller';
 import { UserController } from './user/user.controller';
 import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
+import { ArtistController } from './artist/artist.controller';
 
 @Module({
-  controllers: [AppController, UserController, TrackController],
+  controllers: [
+    AppController,
+    UserController,
+    TrackController,
+    ArtistController,
+  ],
   providers: [AppService, InMemoryDBService],
 })
 export class AppModule {}
