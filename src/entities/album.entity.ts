@@ -1,6 +1,6 @@
 import { InMemoryDBEntity } from '@nestjs-addons/in-memory-db';
 
-export default interface Album extends InMemoryDBEntity {
+export default interface AlbumEntity extends InMemoryDBEntity {
   id: string;
   name: string;
   year: string;
