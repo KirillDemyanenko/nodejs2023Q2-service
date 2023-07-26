@@ -5,6 +5,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  HttpCode,
   NotFoundException,
   Param,
   Post,
@@ -25,7 +26,7 @@ export class UserController {
     return this.userService.getAll();
   }
 
-  @Get('/:id')
+  @Get(':id')
   GetUserById(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     if (!this.userService.get(id))
@@ -48,7 +49,7 @@ export class UserController {
     return this.userService.create(newUser);
   }
 
-  @Put('/:id')
+  @Put(':id')
   EditUser(@Param('id') id: string, @Body() passwords: UpdatePasswordDto) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     const user: UserEntity = this.userService.get(id);
@@ -59,8 +60,12 @@ export class UserController {
     return this.userService.update(user);
   }
 
+  @HttpCode(204)
   @Delete(':id')
   DeleteUser(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
+    const user: UserEntity = this.userService.get(id);
+    if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
     return this.userService.delete(id);
   }
 }
