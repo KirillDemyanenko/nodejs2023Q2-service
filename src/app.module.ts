@@ -6,6 +6,7 @@ import { UserController } from './user/user.controller';
 import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
 import { ArtistController } from './artist/artist.controller';
 import { ConfigModule } from '@nestjs/config';
+import { AlbumController } from './album/album.controller';
 
 @Module({
   imports: [ConfigModule.forRoot()],
@@ -14,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     UserController,
     TrackController,
     ArtistController,
+    AlbumController,
   ],
   providers: [AppService, InMemoryDBService],
 })
