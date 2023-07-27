@@ -66,7 +66,7 @@ export class TrackController {
 
   @HttpCode(204)
   @Delete(':id')
-  deleteUser(@Param('id') id: string) {
+  deleteTrack(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     if (!this.trackService.get(id))
       throw new NotFoundException(`Track with id - ${id} not found!`);

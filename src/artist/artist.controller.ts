@@ -60,7 +60,7 @@ export class ArtistController {
 
   @HttpCode(204)
   @Delete(':id')
-  deleteUser(@Param('id') id: string) {
+  deleteArtist(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     if (!this.artistService.get(id))
       throw new NotFoundException(`Artist with id - ${id} not found!`);

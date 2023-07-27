@@ -19,12 +19,12 @@ export class AlbumController {
   constructor(private readonly albumService: InMemoryDBService<AlbumEntity>) {}
 
   @Get()
-  getArtists(): AlbumEntity[] {
+  getAlbums(): AlbumEntity[] {
     return this.albumService.getAll();
   }
 
   @Get(':id')
-  getArtistById(@Param('id') id: string): AlbumEntity[] {
+  getAlbumById(@Param('id') id: string): AlbumEntity[] {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (!this.albumService.get(id))
       throw new NotFoundException(`Album with id - ${id} not found!`);
@@ -32,7 +32,7 @@ export class AlbumController {
   }
 
   @Post()
-  addArtist(@Body() album: Partial<AlbumEntity>): AlbumEntity {
+  addAlbum(@Body() album: Partial<AlbumEntity>): AlbumEntity {
     if (!album.name || !album.year)
       throw new BadRequestException('Body does not contain required fields');
     const newAlbum: Pick<AlbumEntity, 'name' | 'year' | 'artistId'> = {
@@ -44,7 +44,7 @@ export class AlbumController {
   }
 
   @Put(':id')
-  editArtist(
+  editAlbum(
     @Param('id') id: string,
     @Body() albumInfo: Partial<AlbumEntity>,
   ): void {
@@ -59,7 +59,7 @@ export class AlbumController {
 
   @HttpCode(204)
   @Delete(':id')
-  deleteUser(@Param('id') id: string) {
+  deleteAlbum(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (!this.albumService.get(id))
       throw new NotFoundException(`Album with id - ${id} not found!`);
