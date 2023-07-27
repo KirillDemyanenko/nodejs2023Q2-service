@@ -7,9 +7,10 @@ import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
 import { ArtistController } from './artist/artist.controller';
 import { ConfigModule } from '@nestjs/config';
 import { AlbumController } from './album/album.controller';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [FavoritesModule, ConfigModule.forRoot()],
   controllers: [
     AppController,
     UserController,
