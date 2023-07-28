@@ -9,7 +9,7 @@ import FavoritesResponse from './interfaces/favoritesResponse';
 
 @Injectable()
 export class AppService {
-  private favorites: FavoritesEntity = { artists: [], albums: [], tracks: [] };
+  public favorites: FavoritesEntity = { artists: [], albums: [], tracks: [] };
   constructor(
     public readonly trackService: InMemoryDBService<TrackEntity>,
     public readonly userService: InMemoryDBService<UserEntity>,
@@ -17,7 +17,7 @@ export class AppService {
     public readonly albumService: InMemoryDBService<AlbumEntity>,
   ) {}
 
-  getFavorites() {
+  getFavorites(): FavoritesResponse {
     const fav: FavoritesResponse = { artists: [], albums: [], tracks: [] };
     this.favorites.tracks.forEach((trackID) => {
       fav.tracks.push(this.trackService.get(trackID));

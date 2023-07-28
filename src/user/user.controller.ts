@@ -52,6 +52,8 @@ export class UserController {
   @Put(':id')
   editUser(@Param('id') id: string, @Body() passwords: UpdatePasswordDto) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
+    if (!passwords.newPassword || !passwords.oldPassword)
+      throw new BadRequestException('Body does not contain required fields');
     const user: UserEntity = this.appService.userService.get(id);
     if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
     if (user.password !== passwords.oldPassword)
