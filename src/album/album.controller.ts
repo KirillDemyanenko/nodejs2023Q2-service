@@ -10,25 +10,25 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
 import { isUUID } from 'class-validator';
 import AlbumEntity from '../entities/album.entity';
+import { AppService } from '../app.service';
 
 @Controller('album')
 export class AlbumController {
-  constructor(private readonly albumService: InMemoryDBService<AlbumEntity>) {}
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   getAlbums(): AlbumEntity[] {
-    return this.albumService.getAll();
+    return this.appService.albumService.getAll();
   }
 
   @Get(':id')
   getAlbumById(@Param('id') id: string): AlbumEntity[] {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-    if (!this.albumService.get(id))
+    if (!this.appService.albumService.get(id))
       throw new NotFoundException(`Album with id - ${id} not found!`);
-    return this.albumService.query((data) => data.id === id);
+    return this.appService.albumService.query((data) => data.id === id);
   }
 
   @Post()
@@ -40,7 +40,7 @@ export class AlbumController {
       year: album.year,
       artistId: album.artistId || null,
     };
-    return this.albumService.create(newAlbum);
+    return this.appService.albumService.create(newAlbum);
   }
 
   @Put(':id')
@@ -49,20 +49,20 @@ export class AlbumController {
     @Body() albumInfo: Partial<AlbumEntity>,
   ): void {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-    const album: AlbumEntity = this.albumService.get(id);
+    const album: AlbumEntity = this.appService.albumService.get(id);
     if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
     album.year = albumInfo.year || album.year;
     album.name = albumInfo.name || album.name;
     album.artistId = albumInfo.artistId || album.artistId;
-    return this.albumService.update(album);
+    return this.appService.albumService.update(album);
   }
 
   @HttpCode(204)
   @Delete(':id')
   deleteAlbum(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-    if (!this.albumService.get(id))
+    if (!this.appService.albumService.get(id))
       throw new NotFoundException(`Album with id - ${id} not found!`);
-    return this.albumService.delete(id);
+    return this.appService.albumService.delete(id);
   }
 }

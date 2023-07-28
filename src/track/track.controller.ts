@@ -10,25 +10,25 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
 import TrackEntity from '../entities/track.entity';
 import { isUUID } from 'class-validator';
+import { AppService } from '../app.service';
 
 @Controller('track')
 export class TrackController {
-  constructor(private readonly trackService: InMemoryDBService<TrackEntity>) {}
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   getTracks(): TrackEntity[] {
-    return this.trackService.getAll();
+    return this.appService.trackService.getAll();
   }
 
   @Get(':id')
   getTrackById(@Param('id') id: string): TrackEntity[] {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    if (!this.trackService.get(id))
+    if (!this.appService.trackService.get(id))
       throw new NotFoundException(`Track with id - ${id} not found!`);
-    return this.trackService.query((data) => data.id === id);
+    return this.appService.trackService.query((data) => data.id === id);
   }
 
   //TODO: Artist and Album Validation
@@ -45,7 +45,7 @@ export class TrackController {
       albumId: track.albumId || null,
       duration: track.duration,
     };
-    return this.trackService.create(newTrack);
+    return this.appService.trackService.create(newTrack);
   }
 
   //TODO: Validation of value types
@@ -55,21 +55,21 @@ export class TrackController {
     @Body() trackInfo: Partial<TrackEntity>,
   ): void {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    const track: TrackEntity = this.trackService.get(id);
+    const track: TrackEntity = this.appService.trackService.get(id);
     if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
     track.duration = trackInfo.duration || track.duration;
     track.name = trackInfo.name || track.name;
     track.albumId = trackInfo.albumId || track.albumId;
     track.artistId = trackInfo.artistId || track.artistId;
-    return this.trackService.update(track);
+    return this.appService.trackService.update(track);
   }
 
   @HttpCode(204)
   @Delete(':id')
   deleteTrack(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    if (!this.trackService.get(id))
+    if (!this.appService.trackService.get(id))
       throw new NotFoundException(`Track with id - ${id} not found!`);
-    return this.trackService.delete(id);
+    return this.appService.trackService.delete(id);
   }
 }

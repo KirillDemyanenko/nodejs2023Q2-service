@@ -7,17 +7,19 @@ import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
 import { ArtistController } from './artist/artist.controller';
 import { ConfigModule } from '@nestjs/config';
 import { AlbumController } from './album/album.controller';
-import { FavoritesModule } from './favorites/favorites.module';
+import { FavoritesController } from './favorites/favorites.controller';
 
 @Module({
-  imports: [FavoritesModule, ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot()],
   controllers: [
     AppController,
     UserController,
     TrackController,
     ArtistController,
     AlbumController,
+    FavoritesController,
   ],
+  exports: [AppService],
   providers: [AppService, InMemoryDBService],
 })
 export class AppModule {}

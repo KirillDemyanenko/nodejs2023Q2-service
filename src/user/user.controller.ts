@@ -12,26 +12,26 @@ import {
   Put,
 } from '@nestjs/common';
 import UserEntity from '../entities/user.entity';
-import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
 import CreateUserDto from '../interfaces/createUserDTO';
 import { isUUID } from 'class-validator';
 import UpdatePasswordDto from '../interfaces/updatePasswordDto';
+import { AppService } from '../app.service';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: InMemoryDBService<UserEntity>) {}
+  constructor(private readonly appService: AppService) {}
 
   @Get()
   getUsers(): UserEntity[] {
-    return this.userService.getAll();
+    return this.appService.userService.getAll();
   }
 
   @Get(':id')
   getUserById(@Param('id') id: string): UserEntity[] {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
-    if (!this.userService.get(id))
+    if (!this.appService.userService.get(id))
       throw new NotFoundException(`User with id - ${id} not found!`);
-    return this.userService.query((data) => data.id === id);
+    return this.appService.userService.query((data) => data.id === id);
   }
 
   @Post()
@@ -46,26 +46,26 @@ export class UserController {
       version: 1,
       updatedAt: Date.now(),
     };
-    return this.userService.create(newUser);
+    return this.appService.userService.create(newUser);
   }
 
   @Put(':id')
   editUser(@Param('id') id: string, @Body() passwords: UpdatePasswordDto) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
-    const user: UserEntity = this.userService.get(id);
+    const user: UserEntity = this.appService.userService.get(id);
     if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
     if (user.password !== passwords.oldPassword)
       throw new ForbiddenException(`Wrong old password!`);
     user.password = passwords.newPassword;
-    return this.userService.update(user);
+    return this.appService.userService.update(user);
   }
 
   @HttpCode(204)
   @Delete(':id')
   deleteUser(@Param('id') id: string): void {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
-    if (!this.userService.get(id))
+    if (!this.appService.userService.get(id))
       throw new NotFoundException(`User with id - ${id} not found!`);
-    return this.userService.delete(id);
+    return this.appService.userService.delete(id);
   }
 }
