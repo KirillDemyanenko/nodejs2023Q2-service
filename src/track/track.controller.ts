@@ -53,15 +53,23 @@ export class TrackController {
   editTrack(
     @Param('id') id: string,
     @Body() trackInfo: Partial<TrackEntity>,
-  ): void {
+  ): TrackEntity {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     const track: TrackEntity = this.appService.trackService.get(id);
+    if (
+      !(typeof trackInfo.name === 'string') ||
+      !(typeof trackInfo.duration === 'number') ||
+      !Object.keys(trackInfo).includes('artistId') ||
+      !Object.keys(trackInfo).includes('albumId')
+    )
+      throw new BadRequestException('Body does not contain required fields');
     if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
-    track.duration = trackInfo.duration || track.duration;
-    track.name = trackInfo.name || track.name;
-    track.albumId = trackInfo.albumId || track.albumId;
-    track.artistId = trackInfo.artistId || track.artistId;
-    return this.appService.trackService.update(track);
+    track.duration = trackInfo.duration;
+    track.name = trackInfo.name;
+    track.albumId = trackInfo.albumId;
+    track.artistId = trackInfo.artistId;
+    this.appService.trackService.update(track);
+    return this.appService.trackService.get(id);
   }
 
   @HttpCode(204)
