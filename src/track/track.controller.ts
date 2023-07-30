@@ -78,6 +78,11 @@ export class TrackController {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     if (!this.appService.trackService.get(id))
       throw new NotFoundException(`Track with id - ${id} not found!`);
+    this.appService.favorites.tracks = this.appService.favorites.tracks.filter(
+      (tracktId) => {
+        return tracktId !== id;
+      },
+    );
     return this.appService.trackService.delete(id);
   }
 }
