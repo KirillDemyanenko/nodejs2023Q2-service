@@ -49,6 +49,12 @@ export class AlbumController {
     @Body() albumInfo: Partial<AlbumEntity>,
   ): void {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
+    if (
+      !albumInfo.name ||
+      !albumInfo.year ||
+      !(albumInfo.artistId === null || typeof albumInfo.artistId === 'string')
+    )
+      throw new BadRequestException('Body does not contain required fields');
     const album: AlbumEntity = this.appService.albumService.get(id);
     if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
     album.year = albumInfo.year || album.year;
@@ -63,6 +69,11 @@ export class AlbumController {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (!this.appService.albumService.get(id))
       throw new NotFoundException(`Album with id - ${id} not found!`);
+    this.appService.favorites.albums = this.appService.favorites.albums.filter(
+      (albumtId) => {
+        return albumtId !== id;
+      },
+    );
     return this.appService.albumService.delete(id);
   }
 }
