@@ -59,8 +59,10 @@ export class TrackController {
     if (
       !(typeof trackInfo.name === 'string') ||
       !(typeof trackInfo.duration === 'number') ||
-      !Object.keys(trackInfo).includes('artistId') ||
-      !Object.keys(trackInfo).includes('albumId')
+      !(
+        trackInfo.artistId === null || typeof trackInfo.artistId === 'string'
+      ) ||
+      !(trackInfo.albumId === null || typeof trackInfo.albumId === 'string')
     )
       throw new BadRequestException('Body does not contain required fields');
     if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
