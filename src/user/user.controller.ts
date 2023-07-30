@@ -35,7 +35,7 @@ export class UserController {
   }
 
   @Post()
-  addUser(@Body() user: CreateUserDto): UserEntity {
+  addUser(@Body() user: CreateUserDto): Partial<UserEntity> {
     if (!user.password || !user.login)
       throw new BadRequestException('Body does not contain required fields');
     const newUser: UserEntity = {
@@ -46,20 +46,40 @@ export class UserController {
       version: 1,
       updatedAt: Date.now(),
     };
-    return this.appService.userService.create(newUser);
+    const { id, login, createdAt, version, updatedAt } =
+      this.appService.userService.create(newUser);
+    return {
+      id: id,
+      login: login,
+      createdAt: createdAt,
+      version: version,
+      updatedAt: updatedAt,
+    };
   }
 
   @Put(':id')
-  editUser(@Param('id') id: string, @Body() passwords: UpdatePasswordDto) {
-    if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
+  editUser(@Param('id') idRea: string, @Body() passwords: UpdatePasswordDto) {
+    if (!isUUID(idRea, 4)) throw new BadRequestException('Invalid user id');
     if (!passwords.newPassword || !passwords.oldPassword)
       throw new BadRequestException('Body does not contain required fields');
-    const user: UserEntity = this.appService.userService.get(id);
-    if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
+    const user: UserEntity = this.appService.userService.get(idRea);
+    if (!user)
+      throw new NotFoundException(`User with id - ${idRea} not found!`);
     if (user.password !== passwords.oldPassword)
       throw new ForbiddenException(`Wrong old password!`);
     user.password = passwords.newPassword;
-    return this.appService.userService.update(user);
+    user.version = user.version + 1;
+    user.updatedAt = Date.now();
+    this.appService.userService.update(user);
+    const { id, login, createdAt, version, updatedAt } =
+      this.appService.userService.get(idRea);
+    return {
+      id: id,
+      login: login,
+      createdAt: createdAt,
+      version: version,
+      updatedAt: updatedAt,
+    };
   }
 
   @HttpCode(204)
