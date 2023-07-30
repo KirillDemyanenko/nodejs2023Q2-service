@@ -46,14 +46,17 @@ export class ArtistController {
   editArtist(
     @Param('id') id: string,
     @Body() artistInfo: Partial<ArtistEntity>,
-  ): void {
+  ): ArtistEntity {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
+    if (!artistInfo.name || typeof artistInfo.grammy !== 'boolean')
+      throw new BadRequestException('Body does not contain required fields');
     const artist: ArtistEntity = this.appService.artistService.get(id);
     if (!artist)
       throw new NotFoundException(`Artist with id - ${id} not found!`);
-    artist.name = artistInfo.name || artist.name;
-    artist.grammy = artist.grammy || artist.grammy;
-    return this.appService.artistService.update(artist);
+    artist.name = artistInfo.name;
+    artist.grammy = artistInfo.grammy;
+    this.appService.artistService.update(artist);
+    return this.appService.artistService.get(id);
   }
 
   @HttpCode(204)
@@ -62,6 +65,27 @@ export class ArtistController {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     if (!this.appService.artistService.get(id))
       throw new NotFoundException(`Artist with id - ${id} not found!`);
+    const tracksWithArtist = this.appService.trackService.query(
+      (data) => data.artistId === id,
+    );
+    const albumWithArtist = this.appService.trackService.query(
+      (data) => data.artistId === id,
+    );
+    tracksWithArtist.forEach((track) => {
+      const newTrack = this.appService.trackService.get(track.id);
+      newTrack.artistId = null;
+      this.appService.trackService.update(newTrack);
+    });
+    albumWithArtist.forEach((album) => {
+      const newAlbum = this.appService.albumService.get(album.id);
+      newAlbum.artistId = null;
+      console.log(newAlbum);
+      this.appService.albumService.update(newAlbum);
+    });
+    this.appService.favorites.artists =
+      this.appService.favorites.artists.filter((artistId) => {
+        return artistId !== id;
+      });
     return this.appService.artistService.delete(id);
   }
 }
