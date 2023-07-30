@@ -68,20 +68,13 @@ export class ArtistController {
     const tracksWithArtist = this.appService.trackService.query(
       (data) => data.artistId === id,
     );
-    const albumWithArtist = this.appService.trackService.query(
+    const albumWithArtist = this.appService.albumService.query(
       (data) => data.artistId === id,
     );
-    tracksWithArtist.forEach((track) => {
-      const newTrack = this.appService.trackService.get(track.id);
-      newTrack.artistId = null;
-      this.appService.trackService.update(newTrack);
-    });
-    albumWithArtist.forEach((album) => {
-      const newAlbum = this.appService.albumService.get(album.id);
-      newAlbum.artistId = null;
-      console.log(newAlbum);
-      this.appService.albumService.update(newAlbum);
-    });
+    tracksWithArtist.forEach((value) => (value.artistId = null));
+    this.appService.trackService.updateMany(tracksWithArtist);
+    albumWithArtist.forEach((value) => (value.artistId = null));
+    this.appService.albumService.updateMany(albumWithArtist);
     this.appService.favorites.artists =
       this.appService.favorites.artists.filter((artistId) => {
         return artistId !== id;

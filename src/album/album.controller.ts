@@ -70,9 +70,17 @@ export class AlbumController {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (!this.appService.albumService.get(id))
       throw new NotFoundException(`Album with id - ${id} not found!`);
+    const tracksWithAlbum = this.appService.trackService.query(
+      (data) => data.albumId === id,
+    );
+    const forUpdate = tracksWithAlbum.map((value) => {
+      value.albumId = null;
+      return value;
+    });
+    this.appService.trackService.updateMany(forUpdate);
     this.appService.favorites.albums = this.appService.favorites.albums.filter(
-      (albumtId) => {
-        return albumtId !== id;
+      (albumId) => {
+        return albumId !== id;
       },
     );
     return this.appService.albumService.delete(id);

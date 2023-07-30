@@ -31,18 +31,17 @@ export class TrackController {
     return this.appService.trackService.query((data) => data.id === id);
   }
 
-  //TODO: Artist and Album Validation
   @Post()
   addTrack(@Body() track: Partial<TrackEntity>): TrackEntity {
-    if (!track.duration || !track.name)
+    if (typeof track.duration !== 'number' || typeof track.name !== 'string')
       throw new BadRequestException('Body does not contain required fields');
     const newTrack: Pick<
       TrackEntity,
       'name' | 'artistId' | 'albumId' | 'duration'
     > = {
       name: track.name,
-      artistId: track.artistId || null,
-      albumId: track.albumId || null,
+      artistId: typeof track.artistId === 'string' ? track.artistId : null,
+      albumId: typeof track.albumId === 'string' ? track.albumId : null,
       duration: track.duration,
     };
     return this.appService.trackService.create(newTrack);
