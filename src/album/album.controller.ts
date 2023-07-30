@@ -47,7 +47,7 @@ export class AlbumController {
   editAlbum(
     @Param('id') id: string,
     @Body() albumInfo: Partial<AlbumEntity>,
-  ): void {
+  ): AlbumEntity {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (
       !albumInfo.name ||
@@ -60,7 +60,8 @@ export class AlbumController {
     album.year = albumInfo.year || album.year;
     album.name = albumInfo.name || album.name;
     album.artistId = albumInfo.artistId || album.artistId;
-    return this.appService.albumService.update(album);
+    this.appService.albumService.update(album);
+    return this.appService.albumService.get(id);
   }
 
   @HttpCode(204)
