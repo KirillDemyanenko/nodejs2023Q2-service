@@ -1,0 +1,161 @@
+### Add user
+POST http://localhost:4000/user
+Content-Type: application/json
+
+{
+  "login": "user2",
+  "password": "2222"
+}
+
+### Get all users
+GET http://localhost:4000/user
+Accept: application/json
+
+### Get user by id
+GET http://localhost:4000/user/5aa1d5ae-49fc-487f-9a2a-0bcf307835e2
+Accept: application/json
+
+### Delete user
+DELETE http://localhost:4000/user/5aa1d5ae-49fc-487f-9a2a-0bcf307835e2
+Content-Type: application/json
+
+### Update user
+PUT http://localhost:4000/user/167533d8-13ec-4d61-b532-f4fd3bb271d8
+Content-Type: application/json
+
+{
+  "oldPassword": "2222",
+  "newPassword": "string"
+}
+
+### Get track
+GET http://localhost:4000/track
+Accept: application/json
+
+### Geet track by id
+GET http://localhost:4000/track/827fc02f-9fe1-45a9-a85a-90ffb6261951
+Accept: application/json
+
+### Add track
+POST http://localhost:4000/track
+Content-Type: application/json
+
+{
+  "name": "track99",
+  "duration": 5656,
+  "artistId": null,
+  "albumId": "c27cffe6-26d9-44c7-a35b-485fc0b61"
+}
+
+### Update track
+PUT http://localhost:4000/track/e5209063-e93c-4ea9-976f-d71f027d3dfd
+Content-Type: application/json
+
+{
+  "name": "track99",
+  "duration": "5656",
+  "artistId": "1c4e0630-3d5f-4416-9f79-eded405a6b14",
+  "albumID": "c27cffe6-26d9-44c7-a35b-485fc0b673c1"
+}
+
+### Delete track
+DELETE http://localhost:4000/track/fb9e0f8f-a825-4f0e-9cf0-bbc1bedc5526
+Content-Type: application/json
+
+### Get artist
+GET http://localhost:4000/artist
+Accept: application/json
+
+### Get artist by id
+GET http://localhost:4000/artist/1c4e0630-3d5f-4416-9f79-eded405a6b14
+Accept: application/json
+
+### Add artist
+POST http://localhost:4000/artist
+Content-Type: application/json
+
+{
+  "name": "ыartist2й",
+  "grammy": true
+}
+
+### Update artist
+PUT http://localhost:4000/artist/5441eb42-7af8-4128-a3dd-de3f3fb0b9f9
+Content-Type: application/json
+
+{
+  "name": "artiыstы2",
+  "grammy": true
+}
+
+### Delete artist
+DELETE http://localhost:4000/artist/0fb34888-fb7d-450c-be13-1a9d46b05c04
+Content-Type: application/json
+
+### Get album
+GET http://localhost:4000/album
+Accept: application/json
+
+### Get album by id
+GET http://localhost:4000/album/5eecf05c-95c7-4e5f-903c-12886df08e53
+Accept: application/json
+
+### Add album
+POST http://localhost:4000/album
+Content-Type: application/json
+
+{
+  "name": "ыarstist2й",
+  "year": "2022"
+}
+
+### Update album
+PUT http://localhost:4000/album/7346a4a5-6525-45cd-8f85-a434a24496cc
+Content-Type: application/json
+
+{
+  "name": "ыarstis",
+  "year": "2020"
+}
+
+### Delete album
+DELETE http://localhost:4000/album/c27cffe6-26d9-44c7-a35b-485fc0b673c1
+Content-Type: application/json
+
+### Get fovorites
+GET http://localhost:4000/favs
+Accept: application/json
+
+### Add track to favorites
+POST http://localhost:4000/favs/track/2f126149-3ae5-4604-a5b7-c6b2c20c6544
+Content-Type: application/json
+
+{}
+
+### Add album to favorites
+POST http://localhost:4000/favs/album/96cdca4b-264e-41c1-b7fe-7c56a2be2246
+Content-Type: application/json
+
+{}
+
+### Add artist to favorites
+POST http://localhost:4000/favs/artist/2f126149-3ae5-4604-a5b7-c6b2c20c6544
+Content-Type: application/json
+{}
+
+### Delete track to favorites
+DELETE http://localhost:4000/favs/track/2f126149-3ae5-4604-a5b7-c6b2c20c6544
+Content-Type: application/json
+
+{}
+
+### Delete album to favorites
+DELETE http://localhost:4000/favs/album/96cdca4b-264e-41c1-b7fe-7c56a2be2246
+Content-Type: application/json
+
+{}
+
+### Delete artist to favorites
+DELETE http://localhost:4000/favs/artist/2f126149-3ae5-4604-a5b7-c6b2c20c6544
+Content-Type: application/json
+{}
