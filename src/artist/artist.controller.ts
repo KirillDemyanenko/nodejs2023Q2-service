@@ -24,11 +24,11 @@ export class ArtistController {
   }
 
   @Get(':id')
-  getArtistById(@Param('id') id: string): ArtistEntity[] {
+  getArtistById(@Param('id') id: string): ArtistEntity {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     if (!this.appService.artistService.get(id))
       throw new NotFoundException(`Artist with id - ${id} not found!`);
-    return this.appService.artistService.query((data) => data.id === id);
+    return this.appService.artistService.get(id);
   }
 
   @Post()

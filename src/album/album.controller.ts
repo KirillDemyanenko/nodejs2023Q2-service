@@ -24,11 +24,11 @@ export class AlbumController {
   }
 
   @Get(':id')
-  getAlbumById(@Param('id') id: string): AlbumEntity[] {
+  getAlbumById(@Param('id') id: string): AlbumEntity {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (!this.appService.albumService.get(id))
       throw new NotFoundException(`Album with id - ${id} not found!`);
-    return this.appService.albumService.query((data) => data.id === id);
+    return this.appService.albumService.get(id);
   }
 
   @Post()

@@ -24,11 +24,11 @@ export class TrackController {
   }
 
   @Get(':id')
-  getTrackById(@Param('id') id: string): TrackEntity[] {
+  getTrackById(@Param('id') id: string): TrackEntity {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     if (!this.appService.trackService.get(id))
       throw new NotFoundException(`Track with id - ${id} not found!`);
-    return this.appService.trackService.query((data) => data.id === id);
+    return this.appService.trackService.get(id);
   }
 
   @Post()
