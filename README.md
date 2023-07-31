@@ -8,7 +8,13 @@
 ## Downloading
 
 ```
-git clone {repository URL}
+git clone https://github.com/KirillDemyanenko/nodejs2023Q2-service.git
+```
+
+## Switch to develop branch
+
+```
+git checkout develop
 ```
 
 ## Installing NPM modules
@@ -28,6 +34,9 @@ in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 ## Testing
+```
+For testing you can use scratch.http (in root folder)
+```
 
 After application running open new terminal and enter:
 
@@ -43,13 +52,13 @@ To run only one of all test suites
 npm run test -- <path to suite>
 ```
 
-To run all test with authorization
+To run all test with authorization (not for Part 1)
 
 ```
 npm run test:auth
 ```
 
-To run only specific test suite with authorization
+To run only specific test suite with authorization (not for Part 1)
 
 ```
 npm run test:auth -- <path to suite>
