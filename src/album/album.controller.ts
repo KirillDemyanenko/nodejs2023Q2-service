@@ -47,27 +47,29 @@ export class AlbumController {
     await this.dataSource.manager.save(albumsEntity);
     return albumsEntity;
   }
-  //
-  // @Put(':id')
-  // editAlbum(
-  //   @Param('id') id: string,
-  //   @Body() albumInfo: Partial<Albums>,
-  // ): Albums {
-  //   if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-  //   if (
-  //     !albumInfo.name ||
-  //     !albumInfo.year ||
-  //     !(albumInfo.artistId === null || typeof albumInfo.artistId === 'string')
-  //   )
-  //     throw new BadRequestException('Body does not contain required fields');
-  //   const album: Albums = this.appService.albumService.get(id);
-  //   if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
-  //   album.year = albumInfo.year || album.year;
-  //   album.name = albumInfo.name || album.name;
-  //   album.artistId = albumInfo.artistId || album.artistId;
-  //   this.appService.albumService.update(album);
-  //   return this.appService.albumService.get(id);
-  // }
+
+  @Put(':id')
+  async editAlbum(
+    @Param('id') id: string,
+    @Body() albumInfo: Partial<Albums>,
+  ): Promise<Albums> {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
+    if (
+      !albumInfo.name ||
+      !albumInfo.year ||
+      !(albumInfo.artistId === null || typeof albumInfo.artistId === 'string')
+    )
+      throw new BadRequestException('Body does not contain required fields');
+    const album: Albums = await this.dataSource.manager.findOneBy(Albums, {
+      id: id,
+    });
+    if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
+    album.year = albumInfo.year || album.year;
+    album.name = albumInfo.name || album.name;
+    album.artistId = albumInfo.artistId || album.artistId;
+    await this.dataSource.manager.save(Albums, album);
+    return album;
+  }
   //
   // @HttpCode(204)
   // @Delete(':id')
