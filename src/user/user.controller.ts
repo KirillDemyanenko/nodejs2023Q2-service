@@ -39,29 +39,21 @@ export class UserController {
     if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
     return user;
   }
-  //
-  // @Post()
-  // addUser(@Body() user: CreateUserDto): Partial<Users> {
-  //   if (!user.password || !user.login)
-  //     throw new BadRequestException('Body does not contain required fields');
-  //   const newUser: Users = {
-  //     id: '',
-  //     password: user.password,
-  //     login: user.login,
-  //     createdAt: Date.now(),
-  //     version: 1,
-  //     updatedAt: Date.now(),
-  //   };
-  //   const { id, login, createdAt, version, updatedAt } =
-  //     this.appService.userService.create(newUser);
-  //   return {
-  //     id: id,
-  //     login: login,
-  //     createdAt: createdAt,
-  //     version: version,
-  //     updatedAt: updatedAt,
-  //   };
-  // }
+
+  @Post()
+  async addUser(@Body() user: CreateUserDto): Promise<Users> {
+    if (!user.password || !user.login)
+      throw new BadRequestException('Body does not contain required fields');
+    const newUser: Users = new Users();
+    newUser.password = user.password;
+    newUser.login = user.login;
+    newUser.createdAt = Date.now();
+    newUser.version = 1;
+    newUser.updatedAt = Date.now();
+    const usersEntity = this.dataSource.manager.create(Users, newUser);
+    await this.dataSource.manager.save(usersEntity);
+    return usersEntity;
+  }
   //
   // @Put(':id')
   // editUser(@Param('id') idRea: string, @Body() passwords: UpdatePasswordDto) {
