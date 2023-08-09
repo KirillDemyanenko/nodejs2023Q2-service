@@ -35,17 +35,18 @@ export class AlbumController {
     return album;
   }
 
-  // @Post()
-  // addAlbum(@Body() album: Partial<Albums>): Albums {
-  //   if (!album.name || !album.year)
-  //     throw new BadRequestException('Body does not contain required fields');
-  //   const newAlbum: Pick<Albums, 'name' | 'year' | 'artistId'> = {
-  //     name: album.name,
-  //     year: album.year,
-  //     artistId: album.artistId || null,
-  //   };
-  //   return this.appService.albumService.create(newAlbum);
-  // }
+  @Post()
+  async addAlbum(@Body() album: Partial<Albums>): Promise<Albums> {
+    if (!album.name || !album.year)
+      throw new BadRequestException('Body does not contain required fields');
+    const newAlbum: Albums = new Albums();
+    newAlbum.name = album.name;
+    newAlbum.year = album.year;
+    newAlbum.artistId = album.artistId || null;
+    const albumsEntity = this.dataSource.manager.create(Albums, newAlbum);
+    await this.dataSource.manager.save(albumsEntity);
+    return albumsEntity;
+  }
   //
   // @Put(':id')
   // editAlbum(
