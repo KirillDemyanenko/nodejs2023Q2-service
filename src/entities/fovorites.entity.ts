@@ -4,31 +4,43 @@
 //   tracks: string[];
 // }
 
-import { Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class FavoritesArtists {
-  @PrimaryColumn({
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
+  @Column({
     nullable: false,
     type: 'uuid',
+    unique: true,
   })
-  artists: string;
+  artistID: string;
 }
 
 @Entity()
 export class FavoritesAlbums {
-  @PrimaryColumn({
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
+  @Column({
     nullable: false,
     type: 'uuid',
+    unique: true,
   })
-  albums: string;
+  albumID: string;
 }
 
 @Entity()
 export class FavoritesTracks {
-  @PrimaryColumn({
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
+  @Column({
     nullable: false,
     type: 'uuid',
+    unique: true,
   })
-  tracks: string;
+  trackID: string;
 }
