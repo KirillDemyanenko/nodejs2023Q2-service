@@ -1,8 +1,40 @@
-import { InMemoryDBEntity } from '@nestjs-addons/in-memory-db';
+// import { InMemoryDBEntity } from '@nestjs-addons/in-memory-db';
+//
+// export default interface Tracks extends InMemoryDBEntity {
+//   name: string;
+//   artistId: string | null;
+//   albumId: string | null;
+//   duration: number;
+// }
 
-export default interface TrackEntity extends InMemoryDBEntity {
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity()
+export default class Tracks {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({
+    nullable: false,
+    default: '',
+  })
   name: string;
-  artistId: string | null;
-  albumId: string | null;
+
+  @Column({
+    nullable: true,
+    default: '',
+  })
+  artistId: string;
+
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  albumId: string;
+
+  @Column({
+    nullable: false,
+    default: 0,
+  })
   duration: number;
 }
