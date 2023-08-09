@@ -16,6 +16,7 @@ import { AppService } from '../app.service';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import Artists from '../entities/artist.entity';
+import Users from '../entities/user.entity';
 
 @Controller('track')
 export class TrackController {
@@ -36,20 +37,21 @@ export class TrackController {
     if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
     return track;
   }
-  //
-  // @Post()
-  // addTrack(@Body() track: Partial<Tracks>): Tracks {
-  //   if (typeof track.duration !== 'number' || typeof track.name !== 'string')
-  //     throw new BadRequestException('Body does not contain required fields');
-  //   const newTrack: Pick<Tracks, 'name' | 'artistId' | 'albumId' | 'duration'> =
-  //     {
-  //       name: track.name,
-  //       artistId: typeof track.artistId === 'string' ? track.artistId : null,
-  //       albumId: typeof track.albumId === 'string' ? track.albumId : null,
-  //       duration: track.duration,
-  //     };
-  //   return this.appService.trackService.create(newTrack);
-  // }
+
+  @Post()
+  async addTrack(@Body() track: Partial<Tracks>): Promise<Tracks> {
+    if (typeof track.duration !== 'number' || typeof track.name !== 'string')
+      throw new BadRequestException('Body does not contain required fields');
+    const newTrack: Tracks = new Tracks();
+    newTrack.name = track.name;
+    newTrack.artistId =
+      typeof track.artistId === 'string' ? track.artistId : null;
+    newTrack.albumId = typeof track.albumId === 'string' ? track.albumId : null;
+    newTrack.duration = track.duration;
+    const tracksEntity = this.dataSource.manager.create(Tracks, newTrack);
+    await this.dataSource.manager.save(tracksEntity);
+    return tracksEntity;
+  }
   //
   // //TODO: Validation of value types
   // @Put(':id')
