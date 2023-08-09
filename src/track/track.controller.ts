@@ -10,7 +10,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import TrackEntity from '../entities/track.entity';
+import Tracks from '../entities/track.entity';
 import { isUUID } from 'class-validator';
 import { AppService } from '../app.service';
 
@@ -19,12 +19,12 @@ export class TrackController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getTracks(): TrackEntity[] {
+  getTracks(): Tracks[] {
     return this.appService.trackService.getAll();
   }
 
   @Get(':id')
-  getTrackById(@Param('id') id: string): TrackEntity {
+  getTrackById(@Param('id') id: string): Tracks {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     if (!this.appService.trackService.get(id))
       throw new NotFoundException(`Track with id - ${id} not found!`);
@@ -32,18 +32,16 @@ export class TrackController {
   }
 
   @Post()
-  addTrack(@Body() track: Partial<TrackEntity>): TrackEntity {
+  addTrack(@Body() track: Partial<Tracks>): Tracks {
     if (typeof track.duration !== 'number' || typeof track.name !== 'string')
       throw new BadRequestException('Body does not contain required fields');
-    const newTrack: Pick<
-      TrackEntity,
-      'name' | 'artistId' | 'albumId' | 'duration'
-    > = {
-      name: track.name,
-      artistId: typeof track.artistId === 'string' ? track.artistId : null,
-      albumId: typeof track.albumId === 'string' ? track.albumId : null,
-      duration: track.duration,
-    };
+    const newTrack: Pick<Tracks, 'name' | 'artistId' | 'albumId' | 'duration'> =
+      {
+        name: track.name,
+        artistId: typeof track.artistId === 'string' ? track.artistId : null,
+        albumId: typeof track.albumId === 'string' ? track.albumId : null,
+        duration: track.duration,
+      };
     return this.appService.trackService.create(newTrack);
   }
 
@@ -51,10 +49,10 @@ export class TrackController {
   @Put(':id')
   editTrack(
     @Param('id') id: string,
-    @Body() trackInfo: Partial<TrackEntity>,
-  ): TrackEntity {
+    @Body() trackInfo: Partial<Tracks>,
+  ): Tracks {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    const track: TrackEntity = this.appService.trackService.get(id);
+    const track: Tracks = this.appService.trackService.get(id);
     if (
       !(typeof trackInfo.name === 'string') ||
       !(typeof trackInfo.duration === 'number') ||

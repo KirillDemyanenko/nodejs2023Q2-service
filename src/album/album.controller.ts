@@ -11,7 +11,7 @@ import {
   Put,
 } from '@nestjs/common';
 import { isUUID } from 'class-validator';
-import AlbumEntity from '../entities/album.entity';
+import Albums from '../entities/album.entity';
 import { AppService } from '../app.service';
 
 @Controller('album')
@@ -19,12 +19,12 @@ export class AlbumController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getAlbums(): AlbumEntity[] {
+  getAlbums(): Albums[] {
     return this.appService.albumService.getAll();
   }
 
   @Get(':id')
-  getAlbumById(@Param('id') id: string): AlbumEntity {
+  getAlbumById(@Param('id') id: string): Albums {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (!this.appService.albumService.get(id))
       throw new NotFoundException(`Album with id - ${id} not found!`);
@@ -32,10 +32,10 @@ export class AlbumController {
   }
 
   @Post()
-  addAlbum(@Body() album: Partial<AlbumEntity>): AlbumEntity {
+  addAlbum(@Body() album: Partial<Albums>): Albums {
     if (!album.name || !album.year)
       throw new BadRequestException('Body does not contain required fields');
-    const newAlbum: Pick<AlbumEntity, 'name' | 'year' | 'artistId'> = {
+    const newAlbum: Pick<Albums, 'name' | 'year' | 'artistId'> = {
       name: album.name,
       year: album.year,
       artistId: album.artistId || null,
@@ -46,8 +46,8 @@ export class AlbumController {
   @Put(':id')
   editAlbum(
     @Param('id') id: string,
-    @Body() albumInfo: Partial<AlbumEntity>,
-  ): AlbumEntity {
+    @Body() albumInfo: Partial<Albums>,
+  ): Albums {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (
       !albumInfo.name ||
@@ -55,7 +55,7 @@ export class AlbumController {
       !(albumInfo.artistId === null || typeof albumInfo.artistId === 'string')
     )
       throw new BadRequestException('Body does not contain required fields');
-    const album: AlbumEntity = this.appService.albumService.get(id);
+    const album: Albums = this.appService.albumService.get(id);
     if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
     album.year = albumInfo.year || album.year;
     album.name = albumInfo.name || album.name;

@@ -10,7 +10,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import ArtistEntity from '../entities/artist.entity';
+import Artists from '../entities/artist.entity';
 import { isUUID } from 'class-validator';
 import { AppService } from '../app.service';
 
@@ -19,12 +19,12 @@ export class ArtistController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getArtists(): ArtistEntity[] {
+  getArtists(): Artists[] {
     return this.appService.artistService.getAll();
   }
 
   @Get(':id')
-  getArtistById(@Param('id') id: string): ArtistEntity {
+  getArtistById(@Param('id') id: string): Artists {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     if (!this.appService.artistService.get(id))
       throw new NotFoundException(`Artist with id - ${id} not found!`);
@@ -32,10 +32,10 @@ export class ArtistController {
   }
 
   @Post()
-  addArtist(@Body() artist: Partial<ArtistEntity>): ArtistEntity {
+  addArtist(@Body() artist: Partial<Artists>): Artists {
     if (typeof artist.grammy !== 'boolean' || !artist.name)
       throw new BadRequestException('Body does not contain required fields');
-    const newArtist: Pick<ArtistEntity, 'name' | 'grammy'> = {
+    const newArtist: Pick<Artists, 'name' | 'grammy'> = {
       name: artist.name,
       grammy: artist.grammy,
     };
@@ -45,12 +45,12 @@ export class ArtistController {
   @Put(':id')
   editArtist(
     @Param('id') id: string,
-    @Body() artistInfo: Partial<ArtistEntity>,
-  ): ArtistEntity {
+    @Body() artistInfo: Partial<Artists>,
+  ): Artists {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     if (!artistInfo.name || typeof artistInfo.grammy !== 'boolean')
       throw new BadRequestException('Body does not contain required fields');
-    const artist: ArtistEntity = this.appService.artistService.get(id);
+    const artist: Artists = this.appService.artistService.get(id);
     if (!artist)
       throw new NotFoundException(`Artist with id - ${id} not found!`);
     artist.name = artistInfo.name;

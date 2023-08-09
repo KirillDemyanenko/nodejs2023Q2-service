@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
-import TrackEntity from './entities/track.entity';
-import UserEntity from './entities/user.entity';
-import ArtistEntity from './entities/artist.entity';
-import AlbumEntity from './entities/album.entity';
+import Tracks from './entities/track.entity';
+import Users from './entities/user.entity';
+import Artists from './entities/artist.entity';
+import Albums from './entities/album.entity';
 // import FavoritesEntity from './entities/fovorites.entity';
 import FavoritesResponse from './interfaces/favoritesResponse';
 
@@ -11,10 +11,10 @@ import FavoritesResponse from './interfaces/favoritesResponse';
 export class AppService {
   // public favorites: FavoritesEntity = { artists: [], albums: [], tracks: [] };
   constructor(
-    public readonly trackService: InMemoryDBService<TrackEntity>,
-    public readonly userService: InMemoryDBService<UserEntity>,
-    public readonly artistService: InMemoryDBService<ArtistEntity>,
-    public readonly albumService: InMemoryDBService<AlbumEntity>,
+    public readonly trackService: InMemoryDBService<Tracks>,
+    public readonly userService: InMemoryDBService<Users>,
+    public readonly artistService: InMemoryDBService<Artists>,
+    public readonly albumService: InMemoryDBService<Albums>,
   ) {}
 
   // getFavorites(): FavoritesResponse {

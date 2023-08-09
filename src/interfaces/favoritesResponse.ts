@@ -1,9 +1,9 @@
-import ArtistEntity from '../entities/artist.entity';
-import AlbumEntity from '../entities/album.entity';
-import TrackEntity from '../entities/track.entity';
+import Artists from '../entities/artist.entity';
+import Albums from '../entities/album.entity';
+import Tracks from '../entities/track.entity';
 
 export default interface FavoritesResponse {
-  artists: ArtistEntity[];
-  albums: AlbumEntity[];
-  tracks: TrackEntity[];
+  artists: Artists[];
+  albums: Albums[];
+  tracks: Tracks[];
 }

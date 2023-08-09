@@ -11,7 +11,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import UserEntity from '../entities/user.entity';
+import Users from '../entities/user.entity';
 import CreateUserDto from '../interfaces/createUserDTO';
 import { isUUID } from 'class-validator';
 import UpdatePasswordDto from '../interfaces/updatePasswordDto';
@@ -22,12 +22,12 @@ export class UserController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getUsers(): UserEntity[] {
+  getUsers(): Users[] {
     return this.appService.userService.getAll();
   }
 
   @Get(':id')
-  getUserById(@Param('id') id: string): UserEntity[] {
+  getUserById(@Param('id') id: string): Users[] {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     if (!this.appService.userService.get(id))
       throw new NotFoundException(`User with id - ${id} not found!`);
@@ -35,10 +35,10 @@ export class UserController {
   }
 
   @Post()
-  addUser(@Body() user: CreateUserDto): Partial<UserEntity> {
+  addUser(@Body() user: CreateUserDto): Partial<Users> {
     if (!user.password || !user.login)
       throw new BadRequestException('Body does not contain required fields');
-    const newUser: UserEntity = {
+    const newUser: Users = {
       id: '',
       password: user.password,
       login: user.login,
@@ -62,7 +62,7 @@ export class UserController {
     if (!isUUID(idRea, 4)) throw new BadRequestException('Invalid user id');
     if (!passwords.newPassword || !passwords.oldPassword)
       throw new BadRequestException('Body does not contain required fields');
-    const user: UserEntity = this.appService.userService.get(idRea);
+    const user: Users = this.appService.userService.get(idRea);
     if (!user)
       throw new NotFoundException(`User with id - ${idRea} not found!`);
     if (user.password !== passwords.oldPassword)
