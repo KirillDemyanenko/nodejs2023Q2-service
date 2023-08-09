@@ -54,31 +54,27 @@ export class UserController {
     await this.dataSource.manager.save(usersEntity);
     return usersEntity;
   }
-  //
-  // @Put(':id')
-  // editUser(@Param('id') idRea: string, @Body() passwords: UpdatePasswordDto) {
-  //   if (!isUUID(idRea, 4)) throw new BadRequestException('Invalid user id');
-  //   if (!passwords.newPassword || !passwords.oldPassword)
-  //     throw new BadRequestException('Body does not contain required fields');
-  //   const user: Users = this.appService.userService.get(idRea);
-  //   if (!user)
-  //     throw new NotFoundException(`User with id - ${idRea} not found!`);
-  //   if (user.password !== passwords.oldPassword)
-  //     throw new ForbiddenException(`Wrong old password!`);
-  //   user.password = passwords.newPassword;
-  //   user.version = user.version + 1;
-  //   user.updatedAt = Date.now();
-  //   this.appService.userService.update(user);
-  //   const { id, login, createdAt, version, updatedAt } =
-  //     this.appService.userService.get(idRea);
-  //   return {
-  //     id: id,
-  //     login: login,
-  //     createdAt: createdAt,
-  //     version: version,
-  //     updatedAt: updatedAt,
-  //   };
-  // }
+
+  @Put(':id')
+  async editUser(
+    @Param('id') id: string,
+    @Body() passwords: UpdatePasswordDto,
+  ): Promise<Users> {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
+    if (!passwords.newPassword || !passwords.oldPassword)
+      throw new BadRequestException('Body does not contain required fields');
+    const user: Users = await this.dataSource.manager.findOneBy(Users, {
+      id: id,
+    });
+    if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
+    if (user.password !== passwords.oldPassword)
+      throw new ForbiddenException(`Wrong old password!`);
+    user.password = passwords.newPassword;
+    user.version = user.version + 1;
+    user.updatedAt = Date.now();
+    await this.dataSource.manager.save(Users, user);
+    return user;
+  }
   //
   // @HttpCode(204)
   // @Delete(':id')
