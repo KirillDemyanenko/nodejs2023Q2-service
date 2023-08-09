@@ -79,18 +79,21 @@ export class TrackController {
     await this.dataSource.manager.save(Tracks, track);
     return track;
   }
-  //
-  // @HttpCode(204)
-  // @Delete(':id')
-  // deleteTrack(@Param('id') id: string) {
-  //   // if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-  //   // if (!this.appService.trackService.get(id))
-  //   //   throw new NotFoundException(`Track with id - ${id} not found!`);
-  //   // this.appService.favorites.tracks = this.appService.favorites.tracks.filter(
-  //   //   (tracktId) => {
-  //   //     return tracktId !== id;
-  //   //   },
-  //   // );
-  //   // return this.appService.trackService.delete(id);
-  // }
+
+  @HttpCode(204)
+  @Delete(':id')
+  async deleteTrack(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
+    const trackForDelete = await this.dataSource.manager.findOneBy(Artists, {
+      id: id,
+    });
+    if (!trackForDelete)
+      throw new NotFoundException(`Track with id - ${id} not found!`);
+    // this.appService.favorites.tracks = this.appService.favorites.tracks.filter(
+    //   (tracktId) => {
+    //     return tracktId !== id;
+    //   },
+    // );
+    return await this.dataSource.manager.delete(Tracks, { id: id });
+  }
 }
