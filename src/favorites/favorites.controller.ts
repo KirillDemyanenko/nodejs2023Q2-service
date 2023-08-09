@@ -11,9 +11,9 @@ import {
 } from '@nestjs/common';
 import { AppService } from '../app.service';
 import { isUUID } from 'class-validator';
-import TrackEntity from '../entities/track.entity';
-import ArtistEntity from '../entities/artist.entity';
-import AlbumEntity from '../entities/album.entity';
+import Tracks from '../entities/track.entity';
+import Artists from '../entities/artist.entity';
+import Albums from '../entities/album.entity';
 
 @Controller('favs')
 export class FavoritesController {
@@ -28,7 +28,7 @@ export class FavoritesController {
   @HttpCode(201)
   addTrackToFavorites(@Param('id') id: string) {
     // if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    // const track: TrackEntity = this.favoritesService.trackService.get(id);
+    // const track: Tracks = this.favoritesService.trackService.get(id);
     // if (!track)
     //   throw new UnprocessableEntityException(
     //     `Track with id - ${id} not found!`,
@@ -40,7 +40,7 @@ export class FavoritesController {
   @HttpCode(201)
   addArtistToFavorites(@Param('id') id: string) {
     // if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
-    // const artist: ArtistEntity = this.favoritesService.artistService.get(id);
+    // const artist: Artists = this.favoritesService.artistService.get(id);
     // if (!artist)
     //   throw new UnprocessableEntityException(
     //     `Artist with id - ${id} not found!`,
@@ -52,7 +52,7 @@ export class FavoritesController {
   @HttpCode(201)
   addAlbumToFavorites(@Param('id') id: string) {
     // if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-    // const album: AlbumEntity = this.favoritesService.albumService.get(id);
+    // const album: Albums = this.favoritesService.albumService.get(id);
     // if (!album)
     //   throw new UnprocessableEntityException(
     //     `Album with id - ${id} not found!`,
