@@ -16,6 +16,7 @@ import { AppService } from '../app.service';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import Albums from '../entities/album.entity';
+import Tracks from '../entities/track.entity';
 
 @Controller('artist')
 export class ArtistController {
@@ -78,16 +79,16 @@ export class ArtistController {
     });
     if (!artistForDelete)
       throw new NotFoundException(`Artist with id - ${id} not found!`);
-    // const tracksWithArtist = this.appService.trackService.query(
-    //   (data) => data.artistId === id,
-    // );
-    // const albumWithArtist = this.appService.albumService.query(
-    //   (data) => data.artistId === id,
-    // );
-    // tracksWithArtist.forEach((value) => (value.artistId = null));
-    // this.appService.trackService.updateMany(tracksWithArtist);
-    // albumWithArtist.forEach((value) => (value.artistId = null));
-    // this.appService.albumService.updateMany(albumWithArtist);
+    const tracksWithArtist = await this.dataSource.manager.findBy(Tracks, {
+      artistId: id,
+    });
+    const albumWithArtist = await this.dataSource.manager.findBy(Albums, {
+      artistId: id,
+    });
+    tracksWithArtist.forEach((value) => (value.artistId = null));
+    albumWithArtist.forEach((value) => (value.artistId = null));
+    await this.dataSource.manager.save(Tracks, tracksWithArtist);
+    await this.dataSource.manager.save(Albums, albumWithArtist);
     // this.appService.favorites.artists =
     //   this.appService.favorites.artists.filter((artistId) => {
     //     return artistId !== id;
