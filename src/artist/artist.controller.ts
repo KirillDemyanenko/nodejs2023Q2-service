@@ -68,27 +68,30 @@ export class ArtistController {
     await this.dataSource.manager.save(Artists, artist);
     return artist;
   }
-  //
-  // @HttpCode(204)
-  // @Delete(':id')
-  // deleteArtist(@Param('id') id: string) {
-  //   // if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
-  //   // if (!this.appService.artistService.get(id))
-  //   //   throw new NotFoundException(`Artist with id - ${id} not found!`);
-  //   // const tracksWithArtist = this.appService.trackService.query(
-  //   //   (data) => data.artistId === id,
-  //   // );
-  //   // const albumWithArtist = this.appService.albumService.query(
-  //   //   (data) => data.artistId === id,
-  //   // );
-  //   // tracksWithArtist.forEach((value) => (value.artistId = null));
-  //   // this.appService.trackService.updateMany(tracksWithArtist);
-  //   // albumWithArtist.forEach((value) => (value.artistId = null));
-  //   // this.appService.albumService.updateMany(albumWithArtist);
-  //   // this.appService.favorites.artists =
-  //   //   this.appService.favorites.artists.filter((artistId) => {
-  //   //     return artistId !== id;
-  //   //   });
-  //   // return this.appService.artistService.delete(id);
-  // }
+
+  @HttpCode(204)
+  @Delete(':id')
+  async deleteArtist(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
+    const artistForDelete = await this.dataSource.manager.findOneBy(Artists, {
+      id: id,
+    });
+    if (!artistForDelete)
+      throw new NotFoundException(`Artist with id - ${id} not found!`);
+    // const tracksWithArtist = this.appService.trackService.query(
+    //   (data) => data.artistId === id,
+    // );
+    // const albumWithArtist = this.appService.albumService.query(
+    //   (data) => data.artistId === id,
+    // );
+    // tracksWithArtist.forEach((value) => (value.artistId = null));
+    // this.appService.trackService.updateMany(tracksWithArtist);
+    // albumWithArtist.forEach((value) => (value.artistId = null));
+    // this.appService.albumService.updateMany(albumWithArtist);
+    // this.appService.favorites.artists =
+    //   this.appService.favorites.artists.filter((artistId) => {
+    //     return artistId !== id;
+    //   });
+    return await this.dataSource.manager.delete(Artists, { id: id });
+  }
 }
