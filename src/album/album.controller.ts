@@ -14,6 +14,7 @@ import { isUUID } from 'class-validator';
 import Albums from '../entities/album.entity';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
+import Tracks from '../entities/track.entity';
 
 @Controller('album')
 export class AlbumController {
@@ -80,14 +81,11 @@ export class AlbumController {
     });
     if (!albumForDelete)
       throw new NotFoundException(`Album with id - ${id} not found!`);
-    // const tracksWithAlbum = this.appService.trackService.query(
-    //   (data) => data.albumId === id,
-    // );
-    // const forUpdate = tracksWithAlbum.map((value) => {
-    //   value.albumId = null;
-    //   return value;
-    // });
-    // this.appService.trackService.updateMany(forUpdate);
+    const tracksWithAlbum = await this.dataSource.manager.findBy(Tracks, {
+      albumId: id,
+    });
+    tracksWithAlbum.forEach((value) => (value.albumId = null));
+    await this.dataSource.manager.save(Tracks, tracksWithAlbum);
     // this.appService.favorites.albums = this.appService.favorites.albums.filter(
     //   (albumId) => {
     //     return albumId !== id;
