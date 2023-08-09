@@ -52,32 +52,33 @@ export class TrackController {
     await this.dataSource.manager.save(tracksEntity);
     return tracksEntity;
   }
-  //
-  // //TODO: Validation of value types
-  // @Put(':id')
-  // editTrack(
-  //   @Param('id') id: string,
-  //   @Body() trackInfo: Partial<Tracks>,
-  // ): Tracks {
-  //   if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-  //   const track: Tracks = this.appService.trackService.get(id);
-  //   if (
-  //     !(typeof trackInfo.name === 'string') ||
-  //     !(typeof trackInfo.duration === 'number') ||
-  //     !(
-  //       trackInfo.artistId === null || typeof trackInfo.artistId === 'string'
-  //     ) ||
-  //     !(trackInfo.albumId === null || typeof trackInfo.albumId === 'string')
-  //   )
-  //     throw new BadRequestException('Body does not contain required fields');
-  //   if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
-  //   track.duration = trackInfo.duration;
-  //   track.name = trackInfo.name;
-  //   track.albumId = trackInfo.albumId;
-  //   track.artistId = trackInfo.artistId;
-  //   this.appService.trackService.update(track);
-  //   return this.appService.trackService.get(id);
-  // }
+
+  @Put(':id')
+  async editTrack(
+    @Param('id') id: string,
+    @Body() trackInfo: Partial<Tracks>,
+  ): Promise<Tracks> {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
+    const track: Tracks = await this.dataSource.manager.findOneBy(Tracks, {
+      id: id,
+    });
+    if (
+      !(typeof trackInfo.name === 'string') ||
+      !(typeof trackInfo.duration === 'number') ||
+      !(
+        trackInfo.artistId === null || typeof trackInfo.artistId === 'string'
+      ) ||
+      !(trackInfo.albumId === null || typeof trackInfo.albumId === 'string')
+    )
+      throw new BadRequestException('Body does not contain required fields');
+    if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
+    track.duration = trackInfo.duration;
+    track.name = trackInfo.name;
+    track.albumId = trackInfo.albumId;
+    track.artistId = trackInfo.artistId;
+    await this.dataSource.manager.save(Tracks, track);
+    return track;
+  }
   //
   // @HttpCode(204)
   // @Delete(':id')
