@@ -40,67 +40,93 @@ export class FavoritesController {
 
   @Post('track/:id')
   @HttpCode(201)
-  addTrackToFavorites(@Param('id') id: string) {
-    // if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    // const track: Tracks = this.favoritesService.trackService.get(id);
-    // if (!track)
-    //   throw new UnprocessableEntityException(
-    //     `Track with id - ${id} not found!`,
-    //   );
-    // this.favoritesService.favorites.tracks.push(id);
+  async addTrackToFavorites(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
+    const track = await this.dataSource.manager.findOneBy(Tracks, { id: id });
+    if (!track)
+      throw new UnprocessableEntityException(
+        `Track with id - ${id} not found!`,
+      );
+    const newFavoritesTrack = new FavoritesTracks();
+    newFavoritesTrack.trackID = id;
+    const tracksEntity = this.dataSource.manager.create(
+      FavoritesTracks,
+      newFavoritesTrack,
+    );
+    await this.dataSource.manager.save(tracksEntity);
   }
 
   @Post('artist/:id')
   @HttpCode(201)
-  addArtistToFavorites(@Param('id') id: string) {
-    // if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
-    // const artist: Artists = this.favoritesService.artistService.get(id);
-    // if (!artist)
-    //   throw new UnprocessableEntityException(
-    //     `Artist with id - ${id} not found!`,
-    //   );
-    // this.favoritesService.favorites.artists.push(id);
+  async addArtistToFavorites(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
+    const artist: Artists = await this.dataSource.manager.findOneBy(Artists, {
+      id: id,
+    });
+    if (!artist)
+      throw new UnprocessableEntityException(
+        `Artist with id - ${id} not found!`,
+      );
+    const newFavoritesArtist = new FavoritesArtists();
+    newFavoritesArtist.artistID = id;
+    const artistsEntity = this.dataSource.manager.create(
+      FavoritesArtists,
+      newFavoritesArtist,
+    );
+    await this.dataSource.manager.save(artistsEntity);
   }
 
   @Post('album/:id')
   @HttpCode(201)
-  addAlbumToFavorites(@Param('id') id: string) {
-    // if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-    // const album: Albums = this.favoritesService.albumService.get(id);
-    // if (!album)
-    //   throw new UnprocessableEntityException(
-    //     `Album with id - ${id} not found!`,
-    //   );
-    // this.favoritesService.favorites.albums.push(id);
+  async addAlbumToFavorites(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
+    const album: Albums = await this.dataSource.manager.findOneBy(Albums, {
+      id: id,
+    });
+    if (!album)
+      throw new UnprocessableEntityException(
+        `Album with id - ${id} not found!`,
+      );
+    const newFavoritesAlbum = new FavoritesAlbums();
+    newFavoritesAlbum.albumID = id;
+    const albumEntity = this.dataSource.manager.create(
+      FavoritesAlbums,
+      newFavoritesAlbum,
+    );
+    await this.dataSource.manager.save(albumEntity);
   }
 
   @Delete('track/:id')
   @HttpCode(204)
-  deleteTrackFromFavorites(@Param('id') id: string) {
-    // if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    // if (!this.favoritesService.favorites.tracks.includes(id))
-    //   throw new NotFoundException(`Track with id - ${id} not found!`);
-    // const inx = this.favoritesService.favorites.tracks.indexOf(id);
-    // this.favoritesService.favorites.tracks.splice(inx, 1);
+  async deleteTrackFromFavorites(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
+    const track = await this.dataSource.manager.findOneBy(FavoritesTracks, {
+      trackID: id,
+    });
+    if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
+    await this.dataSource.manager.delete(FavoritesTracks, { trackID: id });
   }
 
   @Delete('artist/:id')
   @HttpCode(204)
-  deleteArtistFromFavorites(@Param('id') id: string) {
-    // if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
-    // if (!this.favoritesService.favorites.artists.includes(id))
-    //   throw new NotFoundException(`Artist with id - ${id} not found!`);
-    // const inx = this.favoritesService.favorites.artists.indexOf(id);
-    // this.favoritesService.favorites.artists.splice(inx, 1);
+  async deleteArtistFromFavorites(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
+    const artist = await this.dataSource.manager.findOneBy(FavoritesArtists, {
+      artistID: id,
+    });
+    if (!artist)
+      throw new NotFoundException(`Artist with id - ${id} not found!`);
+    await this.dataSource.manager.delete(FavoritesArtists, { artistID: id });
   }
 
   @Delete('album/:id')
   @HttpCode(204)
-  deleteAlbumFromFavorites(@Param('id') id: string) {
-    // if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-    // if (!this.favoritesService.favorites.albums.includes(id))
-    //   throw new NotFoundException(`Album with id - ${id} not found!`);
-    // const inx = this.favoritesService.favorites.albums.indexOf(id);
-    // this.favoritesService.favorites.albums.splice(inx, 1);
+  async deleteAlbumFromFavorites(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
+    const album = await this.dataSource.manager.findOneBy(FavoritesAlbums, {
+      albumID: id,
+    });
+    if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
+    await this.dataSource.manager.delete(FavoritesArtists, { albumID: id });
   }
 }
