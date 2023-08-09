@@ -4,25 +4,31 @@
 //   tracks: string[];
 // }
 
-// import { Column, Entity } from 'typeorm';
-//
-// @Entity()
-// export class FavoritesEntity {
-//   @Column({
-//     nullable: false,
-//     default: '',
-//   })
-//   artists: string;
-//
-//   @Column({
-//     nullable: false,
-//     default: '',
-//   })
-//   namalbums: string;
-//
-//   @Column({
-//     nullable: false,
-//     default: false,
-//   })
-//   grammy: boolean;
-// }
+import { Entity, PrimaryColumn } from 'typeorm';
+
+@Entity()
+export class FavoritesArtists {
+  @PrimaryColumn({
+    nullable: false,
+    type: 'uuid',
+  })
+  artists: string;
+}
+
+@Entity()
+export class FavoritesAlbums {
+  @PrimaryColumn({
+    nullable: false,
+    type: 'uuid',
+  })
+  albums: string;
+}
+
+@Entity()
+export class FavoritesTracks {
+  @PrimaryColumn({
+    nullable: false,
+    type: 'uuid',
+  })
+  tracks: string;
+}
