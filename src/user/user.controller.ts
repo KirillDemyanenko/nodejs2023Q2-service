@@ -75,13 +75,16 @@ export class UserController {
     await this.dataSource.manager.save(Users, user);
     return user;
   }
-  //
-  // @HttpCode(204)
-  // @Delete(':id')
-  // deleteUser(@Param('id') id: string): void {
-  //   if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
-  //   if (!this.appService.userService.get(id))
-  //     throw new NotFoundException(`User with id - ${id} not found!`);
-  //   return this.appService.userService.delete(id);
-  // }
+
+  @HttpCode(204)
+  @Delete(':id')
+  async deleteUser(@Param('id') id: string) {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
+    const userForDelete = await this.dataSource.manager.findOneBy(Users, {
+      id: id,
+    });
+    if (!userForDelete)
+      throw new NotFoundException(`User with id - ${id} not found!`);
+    return await this.dataSource.manager.delete(Users, { id: id });
+  }
 }
