@@ -14,14 +14,28 @@ import { isUUID } from 'class-validator';
 import Tracks from '../entities/track.entity';
 import Artists from '../entities/artist.entity';
 import Albums from '../entities/album.entity';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import {
+  FavoritesAlbums,
+  FavoritesArtists,
+  FavoritesTracks,
+} from '../entities/fovorites.entity';
 
 @Controller('favs')
 export class FavoritesController {
-  constructor(private readonly favoritesService: AppService) {}
+  constructor(
+    @InjectDataSource('database')
+    private dataSource: DataSource,
+  ) {}
 
   @Get()
-  getFavorites() {
-    // return this.favoritesService.getFavorites();
+  async getFavorites() {
+    return {
+      artists: await this.dataSource.manager.find(FavoritesArtists),
+      albums: await this.dataSource.manager.find(FavoritesAlbums),
+      tracks: await this.dataSource.manager.find(FavoritesTracks),
+    };
   }
 
   @Post('track/:id')
