@@ -50,22 +50,24 @@ export class ArtistController {
     return artistsEntity;
   }
 
-  // @Put(':id')
-  // async editArtist(
-  //   @Param('id') id: string,
-  //   @Body() artistInfo: Partial<Artists>,
-  // ): Artists {
-  //   if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
-  //   if (!artistInfo.name || typeof artistInfo.grammy !== 'boolean')
-  //     throw new BadRequestException('Body does not contain required fields');
-  //   const artist: Artists = this.appService.artistService.get(id);
-  //   if (!artist)
-  //     throw new NotFoundException(`Artist with id - ${id} not found!`);
-  //   artist.name = artistInfo.name;
-  //   artist.grammy = artistInfo.grammy;
-  //   this.appService.artistService.update(artist);
-  //   return this.appService.artistService.get(id);
-  // }
+  @Put(':id')
+  async editArtist(
+    @Param('id') id: string,
+    @Body() artistInfo: Partial<Artists>,
+  ): Promise<Artists> {
+    if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
+    if (!artistInfo.name || typeof artistInfo.grammy !== 'boolean')
+      throw new BadRequestException('Body does not contain required fields');
+    const artist: Artists = await this.dataSource.manager.findOneBy(Artists, {
+      id: id,
+    });
+    if (!artist)
+      throw new NotFoundException(`Artist with id - ${id} not found!`);
+    artist.name = artistInfo.name;
+    artist.grammy = artistInfo.grammy;
+    await this.dataSource.manager.save(Artists, artist);
+    return artist;
+  }
   //
   // @HttpCode(204)
   // @Delete(':id')
