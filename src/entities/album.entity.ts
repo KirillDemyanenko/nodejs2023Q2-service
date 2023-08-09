@@ -15,9 +15,9 @@ export default class Albums {
 
   @Column({
     nullable: false,
-    default: '',
+    default: 1971,
   })
-  year: string;
+  year: number;
 
   @Column({
     nullable: true,
