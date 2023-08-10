@@ -31,11 +31,51 @@ export class FavoritesController {
 
   @Get()
   async getFavorites() {
-    return {
-      artists: await this.dataSource.manager.find(FavoritesArtists),
-      albums: await this.dataSource.manager.find(FavoritesAlbums),
-      tracks: await this.dataSource.manager.find(FavoritesTracks),
+    const artist = await this.dataSource
+      .getRepository(FavoritesArtists)
+      .createQueryBuilder('artists')
+      .select('artists.artistID')
+      .getMany();
+    const album = await this.dataSource
+      .getRepository(FavoritesAlbums)
+      .createQueryBuilder('albums')
+      .select('albums.albumID')
+      .getMany();
+    const track = await this.dataSource
+      .getRepository(FavoritesTracks)
+      .createQueryBuilder('tracks')
+      .select('tracks.trackID')
+      .getMany();
+    const favorites = {
+      artists: [],
+      albums: [],
+      tracks: [],
     };
+    for (const tr of track) {
+      if (tr.trackID) {
+        favorites.tracks.push(
+          await this.dataSource.manager.findOneBy(Tracks, { id: tr.trackID }),
+        );
+      }
+    }
+    for (const ar of artist) {
+      if (ar.artistID) {
+        favorites.artists.push(
+          await this.dataSource.manager.findOneBy(Artists, { id: ar.artistID }),
+        );
+      }
+    }
+    for (const al of album) {
+      if (al.albumID) {
+        favorites.albums.push(
+          await this.dataSource.manager.findOneBy(Albums, { id: al.albumID }),
+        );
+      }
+    }
+    favorites.albums = favorites.albums.filter((value) => !!value);
+    favorites.artists = favorites.artists.filter((value) => !!value);
+    favorites.tracks = favorites.tracks.filter((value) => !!value);
+    return favorites;
   }
 
   @Post('track/:id')
@@ -104,7 +144,7 @@ export class FavoritesController {
       trackID: id,
     });
     if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
-    await this.dataSource.manager.delete(FavoritesTracks, { trackID: id });
+    return await this.dataSource.manager.delete(FavoritesTracks, track);
   }
 
   @Delete('artist/:id')
@@ -116,7 +156,7 @@ export class FavoritesController {
     });
     if (!artist)
       throw new NotFoundException(`Artist with id - ${id} not found!`);
-    await this.dataSource.manager.delete(FavoritesArtists, { artistID: id });
+    return await this.dataSource.manager.delete(FavoritesArtists, artist);
   }
 
   @Delete('album/:id')
@@ -127,6 +167,6 @@ export class FavoritesController {
       albumID: id,
     });
     if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
-    await this.dataSource.manager.delete(FavoritesArtists, { albumID: id });
+    return await this.dataSource.manager.delete(FavoritesAlbums, album);
   }
 }
