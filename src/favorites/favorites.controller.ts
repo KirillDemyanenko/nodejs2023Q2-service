@@ -30,51 +30,23 @@ export class FavoritesController {
 
   @Get()
   async getFavorites() {
-    const artist = await this.dataSource
-      .getRepository(FavoritesArtists)
-      .createQueryBuilder('artists')
-      .select('artists.artistID')
-      .getMany();
-    const album = await this.dataSource
-      .getRepository(FavoritesAlbums)
-      .createQueryBuilder('albums')
-      .select('albums.albumID')
-      .getMany();
-    const track = await this.dataSource
-      .getRepository(FavoritesTracks)
-      .createQueryBuilder('tracks')
-      .select('tracks.trackID')
-      .getMany();
-    const favorites = {
-      artists: [],
-      albums: [],
-      tracks: [],
+    return {
+      artists: await this.dataSource.query(`
+        select "public".artists."id", "name", "grammy"
+        from "public".favorites_artists left join "public".artists
+        on "public".favorites_artists."artistID" = "public".artists."id"
+    `),
+      albums: await this.dataSource.query(`
+        select "public".albums."id", "name", "year", "artistId"
+        from "public".favorites_albums left join "public".albums
+        on "public".favorites_albums."albumID" = "public".albums."id"
+    `),
+      tracks: await this.dataSource.query(`
+        select "public".tracks."id", "name", "artistId", "duration", "albumId"
+        from "public".favorites_tracks left join "public".tracks
+        on "public".favorites_tracks."trackID" = "public".tracks."id"
+    `),
     };
-    for (const tr of track) {
-      if (tr.trackID) {
-        favorites.tracks.push(
-          await this.dataSource.manager.findOneBy(Tracks, { id: tr.trackID }),
-        );
-      }
-    }
-    for (const ar of artist) {
-      if (ar.artistID) {
-        favorites.artists.push(
-          await this.dataSource.manager.findOneBy(Artists, { id: ar.artistID }),
-        );
-      }
-    }
-    for (const al of album) {
-      if (al.albumID) {
-        favorites.albums.push(
-          await this.dataSource.manager.findOneBy(Albums, { id: al.albumID }),
-        );
-      }
-    }
-    favorites.albums = favorites.albums.filter((value) => !!value);
-    favorites.artists = favorites.artists.filter((value) => !!value);
-    favorites.tracks = favorites.tracks.filter((value) => !!value);
-    return favorites;
   }
 
   @Post('track/:id')
