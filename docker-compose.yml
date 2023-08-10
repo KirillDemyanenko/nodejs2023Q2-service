@@ -78,9 +78,32 @@ services:
     networks:
       - postgres
 
+  home-library:
+    container_name: home-library_container
+    image: kirilldemyanenko/home-library
+    environment:
+        DB_HOST: postgres
+        DB_PORT: "5432"
+        DB_USERNAME: "nodejs2023Q2-student"
+        DB_PASSWORD: "password"
+        DB_NAME: "nodejs2023Q2-db"
+    volumes:
+      - home-library-data:/var/lib/home-library
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+    networks:
+      - postgres
+
 volumes:
   nodejs2023Q2-data:
   pgadmin-data:
+  home-library-data:
 
 networks:
   postgres:
