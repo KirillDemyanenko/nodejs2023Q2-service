@@ -14,7 +14,6 @@ import Tracks from '../entities/track.entity';
 import { isUUID } from 'class-validator';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import Artists from '../entities/artist.entity';
 import { FavoritesTracks } from '../entities/fovorites.entity';
 
 @Controller('track')
@@ -83,7 +82,7 @@ export class TrackController {
   @Delete(':id')
   async deleteTrack(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    const trackForDelete = await this.dataSource.manager.findOneBy(Artists, {
+    const trackForDelete = await this.dataSource.manager.findOneBy(Tracks, {
       id: id,
     });
     if (!trackForDelete)
