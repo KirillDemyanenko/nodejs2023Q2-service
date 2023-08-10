@@ -77,7 +77,6 @@ export class UserController {
     user.version = user.version + 1;
     user.updatedAt = Date.now();
     await this.dataSource.manager.save(Users, user);
-    console.log(user);
     return {
       id: user.id,
       login: user.login,
