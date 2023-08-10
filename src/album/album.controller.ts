@@ -15,6 +15,7 @@ import Albums from '../entities/album.entity';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import Tracks from '../entities/track.entity';
+import { FavoritesAlbums } from '../entities/fovorites.entity';
 
 @Controller('album')
 export class AlbumController {
@@ -86,11 +87,10 @@ export class AlbumController {
     });
     tracksWithAlbum.forEach((value) => (value.albumId = null));
     await this.dataSource.manager.save(Tracks, tracksWithAlbum);
-    // this.appService.favorites.albums = this.appService.favorites.albums.filter(
-    //   (albumId) => {
-    //     return albumId !== id;
-    //   },
-    // );
+    const album = await this.dataSource.manager.findOneBy(FavoritesAlbums, {
+      albumID: id,
+    });
+    if (album) await this.dataSource.manager.delete(FavoritesAlbums, album);
     return await this.dataSource.manager.delete(Albums, { id: id });
   }
 }
