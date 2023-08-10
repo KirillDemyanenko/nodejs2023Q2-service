@@ -63,7 +63,7 @@ export class UserController {
   async editUser(
     @Param('id') id: string,
     @Body() passwords: UpdatePasswordDto,
-  ): Promise<Users> {
+  ): Promise<Partial<Users>> {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     if (!passwords.newPassword || !passwords.oldPassword)
       throw new BadRequestException('Body does not contain required fields');
@@ -77,7 +77,14 @@ export class UserController {
     user.version = user.version + 1;
     user.updatedAt = Date.now();
     await this.dataSource.manager.save(Users, user);
-    return user;
+    console.log(user);
+    return {
+      id: user.id,
+      login: user.login,
+      version: user.version,
+      createdAt: parseInt(user.createdAt.toString(), 10),
+      updatedAt: user.updatedAt,
+    };
   }
 
   @HttpCode(204)
