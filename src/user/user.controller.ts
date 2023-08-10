@@ -15,10 +15,8 @@ import Users from '../entities/user.entity';
 import CreateUserDto from '../interfaces/createUserDTO';
 import { isUUID } from 'class-validator';
 import UpdatePasswordDto from '../interfaces/updatePasswordDto';
-import { AppService } from '../app.service';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import Artists from '../entities/artist.entity';
 
 @Controller('user')
 export class UserController {
@@ -41,7 +39,7 @@ export class UserController {
   }
 
   @Post()
-  async addUser(@Body() user: CreateUserDto): Promise<Users> {
+  async addUser(@Body() user: CreateUserDto): Promise<Partial<Users>> {
     if (!user.password || !user.login)
       throw new BadRequestException('Body does not contain required fields');
     const newUser: Users = new Users();
@@ -52,7 +50,13 @@ export class UserController {
     newUser.updatedAt = Date.now();
     const usersEntity = this.dataSource.manager.create(Users, newUser);
     await this.dataSource.manager.save(usersEntity);
-    return usersEntity;
+    return {
+      id: usersEntity.id,
+      login: usersEntity.login,
+      version: usersEntity.version,
+      createdAt: usersEntity.createdAt,
+      updatedAt: usersEntity.updatedAt,
+    };
   }
 
   @Put(':id')
