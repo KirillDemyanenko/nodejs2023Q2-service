@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TrackController } from './track/track.controller';
 import { UserController } from './user/user.controller';
-import { InMemoryDBService } from '@nestjs-addons/in-memory-db';
 import { ArtistController } from './artist/artist.controller';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AlbumController } from './album/album.controller';
@@ -55,6 +54,6 @@ import {
     FavoritesController,
   ],
   exports: [AppService],
-  providers: [AppService, InMemoryDBService],
+  providers: [AppService],
 })
 export class AppModule {}

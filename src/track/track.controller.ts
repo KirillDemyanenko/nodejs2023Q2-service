@@ -12,11 +12,9 @@ import {
 } from '@nestjs/common';
 import Tracks from '../entities/track.entity';
 import { isUUID } from 'class-validator';
-import { AppService } from '../app.service';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import Artists from '../entities/artist.entity';
-import Users from '../entities/user.entity';
 import { FavoritesTracks } from '../entities/fovorites.entity';
 
 @Controller('track')

@@ -1,10 +1,3 @@
-// import { InMemoryDBEntity } from '@nestjs-addons/in-memory-db';
-//
-// export default interface Artists extends InMemoryDBEntity {
-//   name: string;
-//   grammy: boolean;
-// }
-
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()

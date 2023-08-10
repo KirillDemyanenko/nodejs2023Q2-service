@@ -1,5 +1,3 @@
-// import { InMemoryDBEntity } from '@nestjs-addons/in-memory-db';
-
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()

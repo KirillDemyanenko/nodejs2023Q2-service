@@ -9,7 +9,6 @@ import {
   Post,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { AppService } from '../app.service';
 import { isUUID } from 'class-validator';
 import Tracks from '../entities/track.entity';
 import Artists from '../entities/artist.entity';
