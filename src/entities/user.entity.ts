@@ -37,9 +37,15 @@ export default class Users {
   })
   version: number;
 
-  @CreateDateColumn()
+  @Column({
+    type: 'bigint',
+    nullable: false,
+  })
   createdAt: number;
 
-  @CreateDateColumn()
+  @Column({
+    type: 'bigint',
+    nullable: false,
+  })
   updatedAt: number;
 }
