@@ -17,6 +17,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import Artists from '../entities/artist.entity';
 import Users from '../entities/user.entity';
+import { FavoritesTracks } from '../entities/fovorites.entity';
 
 @Controller('track')
 export class TrackController {
@@ -89,11 +90,10 @@ export class TrackController {
     });
     if (!trackForDelete)
       throw new NotFoundException(`Track with id - ${id} not found!`);
-    // this.appService.favorites.tracks = this.appService.favorites.tracks.filter(
-    //   (tracktId) => {
-    //     return tracktId !== id;
-    //   },
-    // );
+    const track = await this.dataSource.manager.findOneBy(FavoritesTracks, {
+      trackID: id,
+    });
+    if (track) await this.dataSource.manager.delete(FavoritesTracks, track);
     return await this.dataSource.manager.delete(Tracks, { id: id });
   }
 }
