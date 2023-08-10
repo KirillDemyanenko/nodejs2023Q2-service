@@ -8,7 +8,8 @@ WORKDIR /usr/src/app
 COPY --chown=node:node package*.json ./
 
 # Install app dependencies
-RUN npm install --force && npm cache clean --force
+RUN npm install --ci
+RUN npm cache clean --force
 
 # Bundle app source
 COPY . .
