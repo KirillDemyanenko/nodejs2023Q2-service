@@ -1,18 +1,4 @@
-import { InMemoryDBEntity } from '@nestjs-addons/in-memory-db';
-
-// export default interface Users extends InMemoryDBEntity {
-//   login: string;
-//   password: string;
-//   version: number;
-//   createdAt: number;
-//   updatedAt: number;
-// }
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export default class Users {
