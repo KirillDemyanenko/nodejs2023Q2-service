@@ -8,6 +8,7 @@ WORKDIR /usr/src/app
 COPY --chown=node:node package*.json ./
 
 # Install app dependencies
+RUN npm install -g npm@9.8.1
 RUN npm install --ci
 RUN npm cache clean --force
 
