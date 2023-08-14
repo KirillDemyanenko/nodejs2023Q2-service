@@ -1,6 +1,19 @@
-import { InMemoryDBEntity } from '@nestjs-addons/in-memory-db';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-export default interface ArtistEntity extends InMemoryDBEntity {
+@Entity()
+export default class Artists {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({
+    nullable: false,
+    default: '',
+  })
   name: string;
+
+  @Column({
+    nullable: false,
+    default: false,
+  })
   grammy: boolean;
 }

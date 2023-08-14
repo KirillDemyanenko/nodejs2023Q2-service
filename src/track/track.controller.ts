@@ -10,51 +10,56 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import TrackEntity from '../entities/track.entity';
+import Tracks from '../entities/track.entity';
 import { isUUID } from 'class-validator';
-import { AppService } from '../app.service';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { FavoritesTracks } from '../entities/fovorites.entity';
 
 @Controller('track')
 export class TrackController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    @InjectDataSource('database')
+    private dataSource: DataSource,
+  ) {}
 
   @Get()
-  getTracks(): TrackEntity[] {
-    return this.appService.trackService.getAll();
+  async getTracks(): Promise<Tracks[]> {
+    return await this.dataSource.manager.find(Tracks);
   }
 
   @Get(':id')
-  getTrackById(@Param('id') id: string): TrackEntity {
+  async getTrackById(@Param('id') id: string): Promise<Tracks> {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    if (!this.appService.trackService.get(id))
-      throw new NotFoundException(`Track with id - ${id} not found!`);
-    return this.appService.trackService.get(id);
+    const track = await this.dataSource.manager.findOneBy(Tracks, { id: id });
+    if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
+    return track;
   }
 
   @Post()
-  addTrack(@Body() track: Partial<TrackEntity>): TrackEntity {
+  async addTrack(@Body() track: Partial<Tracks>): Promise<Tracks> {
     if (typeof track.duration !== 'number' || typeof track.name !== 'string')
       throw new BadRequestException('Body does not contain required fields');
-    const newTrack: Pick<
-      TrackEntity,
-      'name' | 'artistId' | 'albumId' | 'duration'
-    > = {
-      name: track.name,
-      artistId: typeof track.artistId === 'string' ? track.artistId : null,
-      albumId: typeof track.albumId === 'string' ? track.albumId : null,
-      duration: track.duration,
-    };
-    return this.appService.trackService.create(newTrack);
+    const newTrack: Tracks = new Tracks();
+    newTrack.name = track.name;
+    newTrack.artistId =
+      typeof track.artistId === 'string' ? track.artistId : null;
+    newTrack.albumId = typeof track.albumId === 'string' ? track.albumId : null;
+    newTrack.duration = track.duration;
+    const tracksEntity = this.dataSource.manager.create(Tracks, newTrack);
+    await this.dataSource.manager.save(tracksEntity);
+    return tracksEntity;
   }
 
-  //TODO: Validation of value types
   @Put(':id')
-  editTrack(
+  async editTrack(
     @Param('id') id: string,
-    @Body() trackInfo: Partial<TrackEntity>,
-  ): TrackEntity {
+    @Body() trackInfo: Partial<Tracks>,
+  ): Promise<Tracks> {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    const track: TrackEntity = this.appService.trackService.get(id);
+    const track: Tracks = await this.dataSource.manager.findOneBy(Tracks, {
+      id: id,
+    });
     if (
       !(typeof trackInfo.name === 'string') ||
       !(typeof trackInfo.duration === 'number') ||
@@ -69,21 +74,23 @@ export class TrackController {
     track.name = trackInfo.name;
     track.albumId = trackInfo.albumId;
     track.artistId = trackInfo.artistId;
-    this.appService.trackService.update(track);
-    return this.appService.trackService.get(id);
+    await this.dataSource.manager.save(Tracks, track);
+    return track;
   }
 
   @HttpCode(204)
   @Delete(':id')
-  deleteTrack(@Param('id') id: string) {
+  async deleteTrack(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    if (!this.appService.trackService.get(id))
+    const trackForDelete = await this.dataSource.manager.findOneBy(Tracks, {
+      id: id,
+    });
+    if (!trackForDelete)
       throw new NotFoundException(`Track with id - ${id} not found!`);
-    this.appService.favorites.tracks = this.appService.favorites.tracks.filter(
-      (tracktId) => {
-        return tracktId !== id;
-      },
-    );
-    return this.appService.trackService.delete(id);
+    const track = await this.dataSource.manager.findOneBy(FavoritesTracks, {
+      trackID: id,
+    });
+    if (track) await this.dataSource.manager.delete(FavoritesTracks, track);
+    return await this.dataSource.manager.delete(Tracks, { id: id });
   }
 }

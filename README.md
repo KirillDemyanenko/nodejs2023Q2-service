@@ -11,10 +11,10 @@
 git clone https://github.com/KirillDemyanenko/nodejs2023Q2-service.git
 ```
 
-## Switch to develop branch
+## Switch to containerization-database-orm branch
 
 ```
-git checkout develop
+git checkout containerization-database-orm
 ```
 
 ## Installing NPM modules
@@ -23,59 +23,24 @@ git checkout develop
 npm install
 ```
 
-## Running application
+## You need to run a command to start the container (Docker must run on your computer). It will download the necessary images and run the container
 
 ```
-npm start
+npm run docker-compose
 ```
 
-After starting the app on port (4000 as default) you can open
-in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
-For more information about OpenAPI/Swagger please visit https://swagger.io/.
-
-## Testing
+## After starting the container, you can either run the application locally
 ```
-For testing you can use scratch.http (in root folder)
+npm run start
 ```
-
-After application running open new terminal and enter:
-
-To run all tests without authorization
+## Then you can run tests (You can also go into the image and run the tests there through the terminal)
 
 ```
 npm run test
 ```
 
-To run only one of all test suites
+## To run only one of all test suites
 
 ```
 npm run test -- <path to suite>
 ```
-
-To run all test with authorization (not for Part 1)
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization (not for Part 1)
-
-```
-npm run test:auth -- <path to suite>
-```
-
-### Auto-fix and format
-
-```
-npm run lint
-```
-
-```
-npm run format
-```
-
-### Debugging in VSCode
-
-Press <kbd>F5</kbd> to debug.
-
-For more information, visit: https://code.visualstudio.com/docs/editor/debugging

@@ -11,43 +11,50 @@ import {
   Put,
 } from '@nestjs/common';
 import { isUUID } from 'class-validator';
-import AlbumEntity from '../entities/album.entity';
-import { AppService } from '../app.service';
+import Albums from '../entities/album.entity';
+import { DataSource } from 'typeorm';
+import { InjectDataSource } from '@nestjs/typeorm';
+import Tracks from '../entities/track.entity';
+import { FavoritesAlbums } from '../entities/fovorites.entity';
 
 @Controller('album')
 export class AlbumController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    @InjectDataSource('database')
+    private dataSource: DataSource,
+  ) {}
 
   @Get()
-  getAlbums(): AlbumEntity[] {
-    return this.appService.albumService.getAll();
+  async getAlbums(): Promise<Albums[]> {
+    return await this.dataSource.manager.find(Albums);
   }
 
   @Get(':id')
-  getAlbumById(@Param('id') id: string): AlbumEntity {
+  async etAlbumById(@Param('id') id: string): Promise<Albums> {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-    if (!this.appService.albumService.get(id))
-      throw new NotFoundException(`Album with id - ${id} not found!`);
-    return this.appService.albumService.get(id);
+    const album = await this.dataSource.manager.findOneBy(Albums, { id: id });
+    if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
+    return album;
   }
 
   @Post()
-  addAlbum(@Body() album: Partial<AlbumEntity>): AlbumEntity {
+  async addAlbum(@Body() album: Partial<Albums>): Promise<Albums> {
     if (!album.name || !album.year)
       throw new BadRequestException('Body does not contain required fields');
-    const newAlbum: Pick<AlbumEntity, 'name' | 'year' | 'artistId'> = {
-      name: album.name,
-      year: album.year,
-      artistId: album.artistId || null,
-    };
-    return this.appService.albumService.create(newAlbum);
+    const newAlbum: Albums = new Albums();
+    newAlbum.name = album.name;
+    newAlbum.year = album.year;
+    newAlbum.artistId = album.artistId || null;
+    const albumsEntity = this.dataSource.manager.create(Albums, newAlbum);
+    await this.dataSource.manager.save(albumsEntity);
+    return albumsEntity;
   }
 
   @Put(':id')
-  editAlbum(
+  async editAlbum(
     @Param('id') id: string,
-    @Body() albumInfo: Partial<AlbumEntity>,
-  ): AlbumEntity {
+    @Body() albumInfo: Partial<Albums>,
+  ): Promise<Albums> {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (
       !albumInfo.name ||
@@ -55,34 +62,35 @@ export class AlbumController {
       !(albumInfo.artistId === null || typeof albumInfo.artistId === 'string')
     )
       throw new BadRequestException('Body does not contain required fields');
-    const album: AlbumEntity = this.appService.albumService.get(id);
+    const album: Albums = await this.dataSource.manager.findOneBy(Albums, {
+      id: id,
+    });
     if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
     album.year = albumInfo.year || album.year;
     album.name = albumInfo.name || album.name;
     album.artistId = albumInfo.artistId || album.artistId;
-    this.appService.albumService.update(album);
-    return this.appService.albumService.get(id);
+    await this.dataSource.manager.save(Albums, album);
+    return album;
   }
 
   @HttpCode(204)
   @Delete(':id')
-  deleteAlbum(@Param('id') id: string) {
+  async deleteAlbum(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-    if (!this.appService.albumService.get(id))
-      throw new NotFoundException(`Album with id - ${id} not found!`);
-    const tracksWithAlbum = this.appService.trackService.query(
-      (data) => data.albumId === id,
-    );
-    const forUpdate = tracksWithAlbum.map((value) => {
-      value.albumId = null;
-      return value;
+    const albumForDelete = await this.dataSource.manager.findOneBy(Albums, {
+      id: id,
     });
-    this.appService.trackService.updateMany(forUpdate);
-    this.appService.favorites.albums = this.appService.favorites.albums.filter(
-      (albumId) => {
-        return albumId !== id;
-      },
-    );
-    return this.appService.albumService.delete(id);
+    if (!albumForDelete)
+      throw new NotFoundException(`Album with id - ${id} not found!`);
+    const tracksWithAlbum = await this.dataSource.manager.findBy(Tracks, {
+      albumId: id,
+    });
+    tracksWithAlbum.forEach((value) => (value.albumId = null));
+    await this.dataSource.manager.save(Tracks, tracksWithAlbum);
+    const album = await this.dataSource.manager.findOneBy(FavoritesAlbums, {
+      albumID: id,
+    });
+    if (album) await this.dataSource.manager.delete(FavoritesAlbums, album);
+    return await this.dataSource.manager.delete(Albums, { id: id });
   }
 }
