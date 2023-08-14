@@ -34,15 +34,15 @@ services:
       - "-c"
       - "pg_stat_statements.track=all"
     environment:
-      POSTGRES_DB: "nodejs2023Q2-db"
-      POSTGRES_USER: "nodejs2023Q2-student"
-      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "${DB_NAME}"
+      POSTGRES_USER: "${DB_USERNAME}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
       - ../2. Init Database:/docker-entrypoint-initdb.d
       - nodejs2023Q2-data:/var/lib/postgresql/data
     ports:
-        - "5432:5432"
+        - "${DB_PORT}:${DB_PORT}"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U nodejs2023Q2-student -d nodejs2023Q2-db"]
       interval: 10s
@@ -62,13 +62,13 @@ services:
     container_name: pgadmin_container
     image: dpage/pgadmin4:latest
     environment:
-      PGADMIN_DEFAULT_EMAIL: "mail@mail.com"
-      PGADMIN_DEFAULT_PASSWORD: "password"
-      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
+      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
+      PGADMIN_CONFIG_SERVER_MODE: "${PGADMIN_CONFIG_SERVER_MODE}"
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     ports:
-      - "5050:80"
+      - "${PGADMIN_PORT}:${PGADMIN_PORT_OUT}"
     restart: unless-stopped
     deploy:
       resources:
@@ -83,14 +83,14 @@ services:
     image: kirilldemyanenko/home-library
     environment:
         DB_HOST: postgres
-        DB_PORT: "5432"
-        DB_USERNAME: "nodejs2023Q2-student"
-        DB_PASSWORD: "password"
-        DB_NAME: "nodejs2023Q2-db"
+        DB_PORT: "${DB_PORT}"
+        DB_USERNAME: "${DB_USERNAME}"
+        DB_PASSWORD: "${DB_PASSWORD}"
+        DB_NAME: "${DB_NAME}"
     volumes:
       - home-library-data:/var/lib/home-library
     ports:
-      - "4000:4000"
+      - "${APP_PORT}:${APP_PORT}"
     restart: unless-stopped
     deploy:
       resources:

@@ -20,7 +20,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "docker-build": "docker build -t nodejs-service:v1 .",
-    "docker-compose": "docker-compose -f docker-compose.yml up -d"
+    "docker-compose": "docker-compose --env-file .env -f docker-compose.yml up -d"
   },
   "dependencies": {
     "@nestjs/cli": "^10.1.11",
