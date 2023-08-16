@@ -17,6 +17,7 @@ import {
   FavoritesArtists,
   FavoritesTracks,
 } from './entities/fovorites.entity';
+import { AuthController } from './auth/auth/auth.controller';
 
 @Module({
   imports: [
@@ -24,13 +25,13 @@ import {
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       name: 'database',
-      useFactory: (configService: ConfigService) => ({
+      useFactory: async (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get('DB_HOST'),
+        host: await configService.get('DB_HOST'),
         port: +configService.get<number>('DB_PORT'),
-        username: configService.get('DB_USERNAME'),
-        password: configService.get('DB_PASSWORD'),
-        database: configService.get('DB_NAME'),
+        username: await configService.get('DB_USERNAME'),
+        password: await configService.get('DB_PASSWORD'),
+        database: await configService.get('DB_NAME'),
         entities: [
           Albums,
           Artists,
@@ -52,6 +53,7 @@ import {
     ArtistController,
     AlbumController,
     FavoritesController,
+    AuthController,
   ],
   exports: [AppService],
   providers: [AppService],
