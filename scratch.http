@@ -159,3 +159,12 @@ Content-Type: application/json
 DELETE http://localhost:4000/favs/artist/2f126149-3ae5-4604-a5b7-c6b2c20c6544
 Content-Type: application/json
 {}
+
+### SignUp
+POST http://localhost:4000/auth/signup
+Content-Type: application/json
+
+{
+  "login": "user2",
+  "password": "10"
+}
