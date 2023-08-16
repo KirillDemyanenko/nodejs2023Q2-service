@@ -9,6 +9,8 @@ import {
   Param,
   Post,
   Put,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import Tracks from '../entities/track.entity';
 import { isUUID } from 'class-validator';
@@ -24,12 +26,17 @@ export class TrackController {
   ) {}
 
   @Get()
-  async getTracks(): Promise<Tracks[]> {
+  async getTracks(@Req() req: Request): Promise<Tracks[]> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     return await this.dataSource.manager.find(Tracks);
   }
 
   @Get(':id')
-  async getTrackById(@Param('id') id: string): Promise<Tracks> {
+  async getTrackById(
+    @Req() req: Request,
+    @Param('id') id: string,
+  ): Promise<Tracks> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     const track = await this.dataSource.manager.findOneBy(Tracks, { id: id });
     if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
@@ -37,7 +44,11 @@ export class TrackController {
   }
 
   @Post()
-  async addTrack(@Body() track: Partial<Tracks>): Promise<Tracks> {
+  async addTrack(
+    @Req() req: Request,
+    @Body() track: Partial<Tracks>,
+  ): Promise<Tracks> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (typeof track.duration !== 'number' || typeof track.name !== 'string')
       throw new BadRequestException('Body does not contain required fields');
     const newTrack: Tracks = new Tracks();
@@ -53,9 +64,11 @@ export class TrackController {
 
   @Put(':id')
   async editTrack(
+    @Req() req: Request,
     @Param('id') id: string,
     @Body() trackInfo: Partial<Tracks>,
   ): Promise<Tracks> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     const track: Tracks = await this.dataSource.manager.findOneBy(Tracks, {
       id: id,
@@ -80,7 +93,8 @@ export class TrackController {
 
   @HttpCode(204)
   @Delete(':id')
-  async deleteTrack(@Param('id') id: string) {
+  async deleteTrack(@Req() req: Request, @Param('id') id: string) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     const trackForDelete = await this.dataSource.manager.findOneBy(Tracks, {
       id: id,

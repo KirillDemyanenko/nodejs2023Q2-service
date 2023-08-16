@@ -9,6 +9,8 @@ import {
   Param,
   Post,
   Put,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import Albums from '../entities/album.entity';
@@ -25,12 +27,17 @@ export class AlbumController {
   ) {}
 
   @Get()
-  async getAlbums(): Promise<Albums[]> {
+  async getAlbums(@Req() req: Request): Promise<Albums[]> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     return await this.dataSource.manager.find(Albums);
   }
 
   @Get(':id')
-  async etAlbumById(@Param('id') id: string): Promise<Albums> {
+  async etAlbumById(
+    @Req() req: Request,
+    @Param('id') id: string,
+  ): Promise<Albums> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     const album = await this.dataSource.manager.findOneBy(Albums, { id: id });
     if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
@@ -38,7 +45,11 @@ export class AlbumController {
   }
 
   @Post()
-  async addAlbum(@Body() album: Partial<Albums>): Promise<Albums> {
+  async addAlbum(
+    @Req() req: Request,
+    @Body() album: Partial<Albums>,
+  ): Promise<Albums> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!album.name || !album.year)
       throw new BadRequestException('Body does not contain required fields');
     const newAlbum: Albums = new Albums();
@@ -52,9 +63,11 @@ export class AlbumController {
 
   @Put(':id')
   async editAlbum(
+    @Req() req: Request,
     @Param('id') id: string,
     @Body() albumInfo: Partial<Albums>,
   ): Promise<Albums> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (
       !albumInfo.name ||
@@ -75,7 +88,8 @@ export class AlbumController {
 
   @HttpCode(204)
   @Delete(':id')
-  async deleteAlbum(@Param('id') id: string) {
+  async deleteAlbum(@Req() req: Request, @Param('id') id: string) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     const albumForDelete = await this.dataSource.manager.findOneBy(Albums, {
       id: id,

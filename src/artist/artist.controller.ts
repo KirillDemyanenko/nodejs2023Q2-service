@@ -9,10 +9,11 @@ import {
   Param,
   Post,
   Put,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import Artists from '../entities/artist.entity';
 import { isUUID } from 'class-validator';
-import { AppService } from '../app.service';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import Albums from '../entities/album.entity';
@@ -26,12 +27,17 @@ export class ArtistController {
   ) {}
 
   @Get()
-  async getArtists(): Promise<Artists[]> {
+  async getArtists(@Req() req: Request): Promise<Artists[]> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     return await this.dataSource.manager.find(Artists);
   }
 
   @Get(':id')
-  async getArtistById(@Param('id') id: string): Promise<Artists> {
+  async getArtistById(
+    @Req() req: Request,
+    @Param('id') id: string,
+  ): Promise<Artists> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     const artist = await this.dataSource.manager.findOneBy(Artists, { id: id });
     if (!artist)
@@ -40,7 +46,11 @@ export class ArtistController {
   }
 
   @Post()
-  async addArtist(@Body() artist: Partial<Artists>): Promise<Artists> {
+  async addArtist(
+    @Req() req: Request,
+    @Body() artist: Partial<Artists>,
+  ): Promise<Artists> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (typeof artist.grammy !== 'boolean' || !artist.name)
       throw new BadRequestException('Body does not contain required fields');
     const newArtist: Artists = new Artists();
@@ -53,9 +63,11 @@ export class ArtistController {
 
   @Put(':id')
   async editArtist(
+    @Req() req: Request,
     @Param('id') id: string,
     @Body() artistInfo: Partial<Artists>,
   ): Promise<Artists> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     if (!artistInfo.name || typeof artistInfo.grammy !== 'boolean')
       throw new BadRequestException('Body does not contain required fields');
@@ -72,7 +84,8 @@ export class ArtistController {
 
   @HttpCode(204)
   @Delete(':id')
-  async deleteArtist(@Param('id') id: string) {
+  async deleteArtist(@Req() req: Request, @Param('id') id: string) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     const artistForDelete = await this.dataSource.manager.findOneBy(Artists, {
       id: id,
@@ -89,10 +102,6 @@ export class ArtistController {
     albumWithArtist.forEach((value) => (value.artistId = null));
     await this.dataSource.manager.save(Tracks, tracksWithArtist);
     await this.dataSource.manager.save(Albums, albumWithArtist);
-    // this.appService.favorites.artists =
-    //   this.appService.favorites.artists.filter((artistId) => {
-    //     return artistId !== id;
-    //   });
     return await this.dataSource.manager.delete(Artists, { id: id });
   }
 }

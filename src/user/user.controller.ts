@@ -10,6 +10,8 @@ import {
   Param,
   Post,
   Put,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import Users from '../entities/user.entity';
 import CreateUserDto from '../interfaces/createUserDTO';
@@ -26,12 +28,17 @@ export class UserController {
   ) {}
 
   @Get()
-  async getUsers(): Promise<Users[]> {
+  async getUsers(@Req() req: Request): Promise<Users[]> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     return await this.dataSource.manager.find(Users);
   }
 
   @Get(':id')
-  async getUserById(@Param('id') id: string): Promise<Users> {
+  async getUserById(
+    @Req() req: Request,
+    @Param('id') id: string,
+  ): Promise<Users> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     const user = await this.dataSource.manager.findOneBy(Users, { id: id });
     if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
@@ -39,7 +46,11 @@ export class UserController {
   }
 
   @Post()
-  async addUser(@Body() user: CreateUserDto): Promise<Partial<Users>> {
+  async addUser(
+    @Req() req: Request,
+    @Body() user: CreateUserDto,
+  ): Promise<Partial<Users>> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!user.password || !user.login)
       throw new BadRequestException('Body does not contain required fields');
     const newUser: Users = new Users();
@@ -62,8 +73,10 @@ export class UserController {
   @Put(':id')
   async editUser(
     @Param('id') id: string,
+    @Req() req: Request,
     @Body() passwords: UpdatePasswordDto,
   ): Promise<Partial<Users>> {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     if (!passwords.newPassword || !passwords.oldPassword)
       throw new BadRequestException('Body does not contain required fields');
@@ -88,7 +101,8 @@ export class UserController {
 
   @HttpCode(204)
   @Delete(':id')
-  async deleteUser(@Param('id') id: string) {
+  async deleteUser(@Req() req: Request, @Param('id') id: string) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     const userForDelete = await this.dataSource.manager.findOneBy(Users, {
       id: id,

@@ -7,6 +7,8 @@ import {
   NotFoundException,
   Param,
   Post,
+  Req,
+  UnauthorizedException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { isUUID } from 'class-validator';
@@ -29,7 +31,8 @@ export class FavoritesController {
   ) {}
 
   @Get()
-  async getFavorites() {
+  async getFavorites(@Req() req: Request) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     return {
       artists: await this.dataSource.query(`
         select "public".artists."id", "name", "grammy"
@@ -51,7 +54,8 @@ export class FavoritesController {
 
   @Post('track/:id')
   @HttpCode(201)
-  async addTrackToFavorites(@Param('id') id: string) {
+  async addTrackToFavorites(@Req() req: Request, @Param('id') id: string) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     const track = await this.dataSource.manager.findOneBy(Tracks, { id: id });
     if (!track)
@@ -69,7 +73,8 @@ export class FavoritesController {
 
   @Post('artist/:id')
   @HttpCode(201)
-  async addArtistToFavorites(@Param('id') id: string) {
+  async addArtistToFavorites(@Req() req: Request, @Param('id') id: string) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     const artist: Artists = await this.dataSource.manager.findOneBy(Artists, {
       id: id,
@@ -89,7 +94,8 @@ export class FavoritesController {
 
   @Post('album/:id')
   @HttpCode(201)
-  async addAlbumToFavorites(@Param('id') id: string) {
+  async addAlbumToFavorites(@Req() req: Request, @Param('id') id: string) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     const album: Albums = await this.dataSource.manager.findOneBy(Albums, {
       id: id,
@@ -109,7 +115,8 @@ export class FavoritesController {
 
   @Delete('track/:id')
   @HttpCode(204)
-  async deleteTrackFromFavorites(@Param('id') id: string) {
+  async deleteTrackFromFavorites(@Req() req: Request, @Param('id') id: string) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     const track = await this.dataSource.manager.findOneBy(FavoritesTracks, {
       trackID: id,
@@ -120,7 +127,11 @@ export class FavoritesController {
 
   @Delete('artist/:id')
   @HttpCode(204)
-  async deleteArtistFromFavorites(@Param('id') id: string) {
+  async deleteArtistFromFavorites(
+    @Req() req: Request,
+    @Param('id') id: string,
+  ) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     const artist = await this.dataSource.manager.findOneBy(FavoritesArtists, {
       artistID: id,
@@ -132,7 +143,8 @@ export class FavoritesController {
 
   @Delete('album/:id')
   @HttpCode(204)
-  async deleteAlbumFromFavorites(@Param('id') id: string) {
+  async deleteAlbumFromFavorites(@Req() req: Request, @Param('id') id: string) {
+    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     const album = await this.dataSource.manager.findOneBy(FavoritesAlbums, {
       albumID: id,
