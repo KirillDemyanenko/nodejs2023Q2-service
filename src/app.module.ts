@@ -18,6 +18,7 @@ import {
   FavoritesTracks,
 } from './entities/fovorites.entity';
 import { AuthController } from './auth/auth.controller';
+import { JwtService } from "@nestjs/jwt";
 
 @Module({
   imports: [
@@ -55,7 +56,7 @@ import { AuthController } from './auth/auth.controller';
     FavoritesController,
     AuthController,
   ],
-  exports: [AppService],
-  providers: [AppService],
+  exports: [AppService, JwtService],
+  providers: [AppService, JwtService],
 })
 export class AppModule {}
