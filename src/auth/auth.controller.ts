@@ -84,13 +84,35 @@ export class AuthController {
       secret: this.configService.get('JWT_SECRET'),
       expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
     });
+    userDB.accessToken = accessToken
+    userDB.refreshToken = refreshToken
+    await this.dataSource.manager.save(Users, userDB);
     return { accessToken: accessToken, refreshToken: refreshToken };
   }
 
   @Post('/refresh')
-  async refresh(@Body() token: { refreshToken: string }): Promise<string> {
+  async refresh(@Body() token: { refreshToken: string }) {
     if (!token.refreshToken || typeof token.refreshToken !== 'string')
       throw new UnauthorizedException('DTO is invalid');
-    return 'Valid';
+    const userDB: Users = await this.dataSource.manager.findOneBy<Users>(
+      Users,
+      {
+        refreshToken: token.refreshToken,
+      },
+    );
+    if (!userDB) throw new NotFoundException(`User not found!`);
+    const payload = { userId: userDB.id, login: userDB.login };
+    const accessTokenNew = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_SECRET'),
+      expiresIn: this.configService.get('JWT_EXPIRES_IN'),
+    });
+    const refreshTokenNew = this.jwtService.sign(payload, {
+      secret: this.configService.get('JWT_SECRET'),
+      expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN'),
+    });
+    userDB.accessToken = accessTokenNew
+    userDB.refreshToken = refreshTokenNew
+    await this.dataSource.manager.save(Users, userDB);
+    return { accessToken: accessTokenNew, refreshToken: refreshTokenNew };
   }
 }
