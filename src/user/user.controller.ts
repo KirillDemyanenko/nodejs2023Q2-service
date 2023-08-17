@@ -19,12 +19,14 @@ import { isUUID } from 'class-validator';
 import UpdatePasswordDto from '../interfaces/updatePasswordDto';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { AppService } from '../app.service';
 
 @Controller('user')
 export class UserController {
   constructor(
     @InjectDataSource('database')
     private dataSource: DataSource,
+    private appService: AppService,
   ) {}
 
   @Get()
@@ -40,7 +42,7 @@ export class UserController {
   ): Promise<Users> {
     if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
-    const user = await this.dataSource.manager.findOneBy(Users, { id: id });
+    const user = await this.dataSource.manager.findOneBy<Users>(Users, { id: id });
     if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
     return user;
   }
@@ -54,11 +56,12 @@ export class UserController {
     if (!user.password || !user.login)
       throw new BadRequestException('Body does not contain required fields');
     const newUser: Users = new Users();
-    newUser.password = user.password;
+    newUser.password = await this.appService.hashPassword(user.password);
     newUser.login = user.login;
     newUser.createdAt = Date.now();
     newUser.version = 1;
     newUser.updatedAt = Date.now();
+    console.log(newUser.password);
     const usersEntity = this.dataSource.manager.create(Users, newUser);
     await this.dataSource.manager.save(usersEntity);
     return {
@@ -80,13 +83,13 @@ export class UserController {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     if (!passwords.newPassword || !passwords.oldPassword)
       throw new BadRequestException('Body does not contain required fields');
-    const user: Users = await this.dataSource.manager.findOneBy(Users, {
+    const user: Users = await this.dataSource.manager.findOneBy<Users>(Users, {
       id: id,
     });
     if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
-    if (user.password !== passwords.oldPassword)
+    if (!(await this.appService.isMatch(passwords.oldPassword, user.password)))
       throw new ForbiddenException(`Wrong old password!`);
-    user.password = passwords.newPassword;
+    user.password = await this.appService.hashPassword(passwords.newPassword);
     user.version = user.version + 1;
     user.updatedAt = Date.now();
     await this.dataSource.manager.save(Users, user);
