@@ -9,8 +9,7 @@ import {
   Param,
   Post,
   Put,
-  Req,
-  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import Albums from '../entities/album.entity';
@@ -18,6 +17,7 @@ import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 import Tracks from '../entities/track.entity';
 import { FavoritesAlbums } from '../entities/fovorites.entity';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('album')
 export class AlbumController {
@@ -26,30 +26,24 @@ export class AlbumController {
     private dataSource: DataSource,
   ) {}
 
+  @UseGuards(AuthGuard)
   @Get()
-  async getAlbums(@Req() req: Request): Promise<Albums[]> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async getAlbums(): Promise<Albums[]> {
     return await this.dataSource.manager.find(Albums);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  async etAlbumById(
-    @Req() req: Request,
-    @Param('id') id: string,
-  ): Promise<Albums> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async etAlbumById(@Param('id') id: string): Promise<Albums> {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-    const album = await this.dataSource.manager.findOneBy(Albums, { id: id });
+    const album = await this.dataSource.manager.findOneBy<Albums>(Albums, { id: id });
     if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
     return album;
   }
 
+  @UseGuards(AuthGuard)
   @Post()
-  async addAlbum(
-    @Req() req: Request,
-    @Body() album: Partial<Albums>,
-  ): Promise<Albums> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async addAlbum(@Body() album: Partial<Albums>): Promise<Albums> {
     if (!album.name || !album.year)
       throw new BadRequestException('Body does not contain required fields');
     const newAlbum: Albums = new Albums();
@@ -61,13 +55,12 @@ export class AlbumController {
     return albumsEntity;
   }
 
+  @UseGuards(AuthGuard)
   @Put(':id')
   async editAlbum(
-    @Req() req: Request,
     @Param('id') id: string,
     @Body() albumInfo: Partial<Albums>,
   ): Promise<Albums> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     if (
       !albumInfo.name ||
@@ -75,7 +68,7 @@ export class AlbumController {
       !(albumInfo.artistId === null || typeof albumInfo.artistId === 'string')
     )
       throw new BadRequestException('Body does not contain required fields');
-    const album: Albums = await this.dataSource.manager.findOneBy(Albums, {
+    const album: Albums = await this.dataSource.manager.findOneBy<Albums>(Albums, {
       id: id,
     });
     if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
@@ -86,10 +79,10 @@ export class AlbumController {
     return album;
   }
 
+  @UseGuards(AuthGuard)
   @HttpCode(204)
   @Delete(':id')
-  async deleteAlbum(@Req() req: Request, @Param('id') id: string) {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async deleteAlbum(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     const albumForDelete = await this.dataSource.manager.findOneBy(Albums, {
       id: id,

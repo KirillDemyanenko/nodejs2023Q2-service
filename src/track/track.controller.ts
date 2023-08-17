@@ -9,14 +9,14 @@ import {
   Param,
   Post,
   Put,
-  Req,
-  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import Tracks from '../entities/track.entity';
 import { isUUID } from 'class-validator';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { FavoritesTracks } from '../entities/fovorites.entity';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('track')
 export class TrackController {
@@ -25,30 +25,24 @@ export class TrackController {
     private dataSource: DataSource,
   ) {}
 
+  @UseGuards(AuthGuard)
   @Get()
-  async getTracks(@Req() req: Request): Promise<Tracks[]> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async getTracks(): Promise<Tracks[]> {
     return await this.dataSource.manager.find(Tracks);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  async getTrackById(
-    @Req() req: Request,
-    @Param('id') id: string,
-  ): Promise<Tracks> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async getTrackById(@Param('id') id: string): Promise<Tracks> {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    const track = await this.dataSource.manager.findOneBy(Tracks, { id: id });
+    const track = await this.dataSource.manager.findOneBy<Tracks>(Tracks, { id: id });
     if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
     return track;
   }
 
+  @UseGuards(AuthGuard)
   @Post()
-  async addTrack(
-    @Req() req: Request,
-    @Body() track: Partial<Tracks>,
-  ): Promise<Tracks> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async addTrack(@Body() track: Partial<Tracks>): Promise<Tracks> {
     if (typeof track.duration !== 'number' || typeof track.name !== 'string')
       throw new BadRequestException('Body does not contain required fields');
     const newTrack: Tracks = new Tracks();
@@ -62,15 +56,14 @@ export class TrackController {
     return tracksEntity;
   }
 
+  @UseGuards(AuthGuard)
   @Put(':id')
   async editTrack(
-    @Req() req: Request,
     @Param('id') id: string,
     @Body() trackInfo: Partial<Tracks>,
   ): Promise<Tracks> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
-    const track: Tracks = await this.dataSource.manager.findOneBy(Tracks, {
+    const track: Tracks = await this.dataSource.manager.findOneBy<Tracks>(Tracks, {
       id: id,
     });
     if (
@@ -91,10 +84,10 @@ export class TrackController {
     return track;
   }
 
+  @UseGuards(AuthGuard)
   @HttpCode(204)
   @Delete(':id')
-  async deleteTrack(@Req() req: Request, @Param('id') id: string) {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async deleteTrack(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
     const trackForDelete = await this.dataSource.manager.findOneBy(Tracks, {
       id: id,

@@ -10,8 +10,7 @@ import {
   Param,
   Post,
   Put,
-  Req,
-  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import Users from '../entities/user.entity';
 import CreateUserDto from '../interfaces/createUserDTO';
@@ -20,6 +19,7 @@ import UpdatePasswordDto from '../interfaces/updatePasswordDto';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AppService } from '../app.service';
+import { AuthGuard } from '../auth/auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -29,36 +29,37 @@ export class UserController {
     private appService: AppService,
   ) {}
 
+  @UseGuards(AuthGuard)
   @Get()
-  async getUsers(@Req() req: Request): Promise<Users[]> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async getUsers(): Promise<Users[]> {
     return await this.dataSource.manager.find(Users);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
-  async getUserById(
-    @Req() req: Request,
-    @Param('id') id: string,
-  ): Promise<Users> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async getUserById(@Param('id') id: string): Promise<Users> {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
-    const user = await this.dataSource.manager.findOneBy<Users>(Users, { id: id });
+    const user = await this.dataSource.manager.findOneBy<Users>(Users, {
+      id: id,
+    });
     if (!user) throw new NotFoundException(`User with id - ${id} not found!`);
     return user;
   }
 
+  @UseGuards(AuthGuard)
   @Post()
-  async addUser(
-    @Req() req: Request,
-    @Body() user: CreateUserDto,
-  ): Promise<Partial<Users>> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async addUser(@Body() user: CreateUserDto): Promise<Partial<Users>> {
     if (!user.password || !user.login)
       throw new BadRequestException('Body does not contain required fields');
-    if (await this.dataSource.manager.findOneBy<Users>(Users, {
-      login: user.login,
-    })) throw new BadRequestException('A user with this name is already registered in the system');
-      const newUser: Users = new Users();
+    if (
+      await this.dataSource.manager.findOneBy<Users>(Users, {
+        login: user.login,
+      })
+    )
+      throw new BadRequestException(
+        'A user with this name is already registered in the system',
+      );
+    const newUser: Users = new Users();
     newUser.password = await this.appService.hashPassword(user.password);
     newUser.login = user.login;
     newUser.createdAt = Date.now();
@@ -75,13 +76,12 @@ export class UserController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Put(':id')
   async editUser(
     @Param('id') id: string,
-    @Req() req: Request,
     @Body() passwords: UpdatePasswordDto,
   ): Promise<Partial<Users>> {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     if (!passwords.newPassword || !passwords.oldPassword)
       throw new BadRequestException('Body does not contain required fields');
@@ -104,10 +104,10 @@ export class UserController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @HttpCode(204)
   @Delete(':id')
-  async deleteUser(@Req() req: Request, @Param('id') id: string) {
-    if (!req.headers['authorization']) throw new UnauthorizedException();
+  async deleteUser(@Param('id') id: string) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid user id');
     const userForDelete = await this.dataSource.manager.findOneBy(Users, {
       id: id,
