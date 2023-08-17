@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, HttpCode, Post, UnauthorizedException } from "@nestjs/common";
-import CreateUserDto from '../../interfaces/createUserDTO';
+import CreateUserDto from '../interfaces/createUserDTO';
 
 @Controller('auth')
 export class AuthController {

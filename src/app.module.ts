@@ -17,7 +17,7 @@ import {
   FavoritesArtists,
   FavoritesTracks,
 } from './entities/fovorites.entity';
-import { AuthController } from './auth/auth/auth.controller';
+import { AuthController } from './auth/auth.controller';
 
 @Module({
   imports: [
