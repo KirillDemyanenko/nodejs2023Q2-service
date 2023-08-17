@@ -55,13 +55,15 @@ export class UserController {
     if (!req.headers['authorization']) throw new UnauthorizedException();
     if (!user.password || !user.login)
       throw new BadRequestException('Body does not contain required fields');
-    const newUser: Users = new Users();
+    if (await this.dataSource.manager.findOneBy<Users>(Users, {
+      login: user.login,
+    })) throw new BadRequestException('A user with this name is already registered in the system');
+      const newUser: Users = new Users();
     newUser.password = await this.appService.hashPassword(user.password);
     newUser.login = user.login;
     newUser.createdAt = Date.now();
     newUser.version = 1;
     newUser.updatedAt = Date.now();
-    console.log(newUser.password);
     const usersEntity = this.dataSource.manager.create(Users, newUser);
     await this.dataSource.manager.save(usersEntity);
     return {
