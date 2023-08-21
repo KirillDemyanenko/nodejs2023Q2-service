@@ -58,48 +58,48 @@ services:
     networks:
       - postgres
 
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4:latest
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
-      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
-      PGADMIN_CONFIG_SERVER_MODE: "${PGADMIN_CONFIG_SERVER_MODE}"
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    ports:
-      - "${PGADMIN_PORT}:${PGADMIN_PORT_OUT}"
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-    networks:
-      - postgres
-
-  home-library:
-    container_name: home-library_container
-    image: kirilldemyanenko/home-library
-    environment:
-        DB_HOST: postgres
-        DB_PORT: "${DB_PORT}"
-        DB_USERNAME: "${DB_USERNAME}"
-        DB_PASSWORD: "${DB_PASSWORD}"
-        DB_NAME: "${DB_NAME}"
-    volumes:
-      - home-library-data:/var/lib/home-library
-    ports:
-      - "${APP_PORT}:${APP_PORT}"
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-    networks:
-      - postgres
-
+#  pgadmin:
+#    container_name: pgadmin_container
+#    image: dpage/pgadmin4:latest
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
+#      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
+#      PGADMIN_CONFIG_SERVER_MODE: "${PGADMIN_CONFIG_SERVER_MODE}"
+#    volumes:
+#      - pgadmin-data:/var/lib/pgadmin
+#    ports:
+#      - "${PGADMIN_PORT}:${PGADMIN_PORT_OUT}"
+#    restart: unless-stopped
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.5'
+#          memory: 1G
+#    networks:
+#      - postgres
+#
+#  home-library:
+#    container_name: home-library_container
+#    image: kirilldemyanenko/home-library
+#    environment:
+#        DB_HOST: postgres
+#        DB_PORT: "${DB_PORT}"
+#        DB_USERNAME: "${DB_USERNAME}"
+#        DB_PASSWORD: "${DB_PASSWORD}"
+#        DB_NAME: "${DB_NAME}"
+#    volumes:
+#      - home-library-data:/var/lib/home-library
+#    ports:
+#      - "${APP_PORT}:${APP_PORT}"
+#    restart: unless-stopped
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '0.5'
+#          memory: 1G
+#    networks:
+#      - postgres
+#
 volumes:
   nodejs2023Q2-data:
   pgadmin-data:

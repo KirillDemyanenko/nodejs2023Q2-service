@@ -8,6 +8,7 @@ export default class Users {
   @Column({
     nullable: false,
     default: '',
+    unique: true,
   })
   login: string;
 
@@ -34,4 +35,16 @@ export default class Users {
     nullable: false,
   })
   updatedAt: number;
+
+  @Column({
+    nullable: false,
+    default: '',
+  })
+  accessToken: string;
+
+  @Column({
+    nullable: false,
+    default: '',
+  })
+  refreshToken: string;
 }
