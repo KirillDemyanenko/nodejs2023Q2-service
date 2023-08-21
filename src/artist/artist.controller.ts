@@ -8,9 +8,9 @@ import {
   NotFoundException,
   Param,
   Post,
-  Put,
-  UseGuards,
-} from '@nestjs/common';
+  Put, Req,
+  UseGuards
+} from "@nestjs/common";
 import Artists from '../entities/artist.entity';
 import { isUUID } from 'class-validator';
 import { InjectDataSource } from '@nestjs/typeorm';
@@ -18,23 +18,28 @@ import { DataSource } from 'typeorm';
 import Albums from '../entities/album.entity';
 import Tracks from '../entities/track.entity';
 import { AuthGuard } from '../auth/auth.guard';
+import { LibraryLogger } from "../logger/logger";
 
 @Controller('artist')
 export class ArtistController {
   constructor(
     @InjectDataSource('database')
     private dataSource: DataSource,
+    private readonly logger: LibraryLogger,
   ) {}
 
   @UseGuards(AuthGuard)
   @Get()
-  async getArtists(): Promise<Artists[]> {
+  async getArtists(@Req() request: Request): Promise<Artists[]> {
+    this.logger.verbose(
+      `Request to - ${request.url} without query params and with body - ${JSON.stringify(request.body)}.`,
+    );
     return await this.dataSource.manager.find(Artists);
   }
 
   @UseGuards(AuthGuard)
   @Get(':id')
-  async getArtistById(@Param('id') id: string): Promise<Artists> {
+  async getArtistById(@Param('id') id: string, @Req() request: Request): Promise<Artists> {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     const artist = await this.dataSource.manager.findOneBy<Artists>(Artists, { id: id });
     if (!artist)
@@ -44,7 +49,7 @@ export class ArtistController {
 
   @UseGuards(AuthGuard)
   @Post()
-  async addArtist(@Body() artist: Partial<Artists>): Promise<Artists> {
+  async addArtist(@Body() artist: Partial<Artists>, @Req() request: Request): Promise<Artists> {
     if (typeof artist.grammy !== 'boolean' || !artist.name)
       throw new BadRequestException('Body does not contain required fields');
     const newArtist: Artists = new Artists();
@@ -59,6 +64,7 @@ export class ArtistController {
   @Put(':id')
   async editArtist(
     @Param('id') id: string,
+    @Req() request: Request,
     @Body() artistInfo: Partial<Artists>,
   ): Promise<Artists> {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
@@ -78,7 +84,7 @@ export class ArtistController {
   @UseGuards(AuthGuard)
   @HttpCode(204)
   @Delete(':id')
-  async deleteArtist(@Param('id') id: string) {
+  async deleteArtist(@Param('id') id: string, @Req() request: Request) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
     const artistForDelete = await this.dataSource.manager.findOneBy(Artists, {
       id: id,
