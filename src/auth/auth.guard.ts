@@ -21,6 +21,11 @@ export class AuthGuard implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
     const response = context.switchToHttp().getResponse();
+    this.logger.verbose(
+      `Request to - ${request.url} with query params - ${JSON.stringify(
+        request.params,
+      )} and with body - ${JSON.stringify(request.body)}.`,
+    );
     if (!request.headers.authorization) {
       this.logger.error('Authorization header missing. Access is denied.');
       throw new UnauthorizedException();

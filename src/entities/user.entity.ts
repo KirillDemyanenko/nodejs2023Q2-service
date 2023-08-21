@@ -8,7 +8,7 @@ export default class Users {
   @Column({
     nullable: false,
     default: '',
-    unique: true
+    unique: true,
   })
   login: string;
 

@@ -1,7 +1,7 @@
 ### Add user
 POST http://localhost:4000/user
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MzExMmM5Yy1kOGNmLTQxNDMtOTk0NC1lOTk4YzU5OGUyNDAiLCJsb2dpbiI6InRlc3Q2IiwiaWF0IjoxNjkyMjk2Nzg1LCJleHAiOjE2OTIzMDM5ODV9.JEceitjtlMRa3zriTe75fr71MicdVbuHR4iwi8-oYtg
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwYzRmNzljZC04ZTU3LTQwYjMtYWRkMy0wNmZhN2JjZjQ1Y2YiLCJsb2dpbiI6InRlc3Q2IiwiaWF0IjoxNjkyNjM2NTkzLCJleHAiOjE2OTI2NDM3OTN9.yhC4fTKQfj1YdK5Td8doZrQbotXV4OXQ7KJHxweF8vQ
 
 {
   "login": "test61",
@@ -19,6 +19,8 @@ Accept: application/json
 ### Delete user
 DELETE http://localhost:4000/user/5aa1d5ae-49fc-487f-9a2a-0bcf307835e2
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwYzRmNzljZC04ZTU3LTQwYjMtYWRkMy0wNmZhN2JjZjQ1Y2YiLCJsb2dpbiI6InRlc3Q2IiwiaWF0IjoxNjkyNjM2NTkzLCJleHAiOjE2OTI2NDM3OTN9.yhC4fTKQfj1YdK5Td8doZrQbotXV4OXQ7KJHxweF8vQ
+
 
 ### Update user
 PUT http://localhost:4000/user/6cee0dad-e59f-49fe-a093-0c6b14a78f50

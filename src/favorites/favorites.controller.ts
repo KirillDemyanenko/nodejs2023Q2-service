@@ -7,6 +7,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Req,
   UnprocessableEntityException,
   UseGuards,
 } from '@nestjs/common';
@@ -22,12 +23,14 @@ import {
   FavoritesTracks,
 } from '../entities/fovorites.entity';
 import { AuthGuard } from '../auth/auth.guard';
+import { LibraryLogger } from '../logger/logger';
 
 @Controller('favs')
 export class FavoritesController {
   constructor(
     @InjectDataSource('database')
     private dataSource: DataSource,
+    private readonly logger: LibraryLogger,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -55,13 +58,20 @@ export class FavoritesController {
   @UseGuards(AuthGuard)
   @Post('track/:id')
   @HttpCode(201)
-  async addTrackToFavorites(@Param('id') id: string) {
-    if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
+  async addTrackToFavorites(@Param('id') id: string, @Req() request: Request) {
+    if (!isUUID(id, 4)) {
+      this.logger.error(`Request to - ${request.url} - Invalid track id`);
+      throw new BadRequestException('Invalid track id');
+    }
     const track = await this.dataSource.manager.findOneBy(Tracks, { id: id });
-    if (!track)
+    if (!track) {
+      this.logger.error(
+        `Request to - ${request.url} - Track with id - ${id} not found!`,
+      );
       throw new UnprocessableEntityException(
         `Track with id - ${id} not found!`,
       );
+    }
     const newFavoritesTrack = new FavoritesTracks();
     newFavoritesTrack.trackID = id;
     const tracksEntity = this.dataSource.manager.create(
@@ -74,15 +84,25 @@ export class FavoritesController {
   @UseGuards(AuthGuard)
   @Post('artist/:id')
   @HttpCode(201)
-  async addArtistToFavorites(@Param('id') id: string) {
-    if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
-    const artist: Artists = await this.dataSource.manager.findOneBy<Artists>(Artists, {
-      id: id,
-    });
-    if (!artist)
+  async addArtistToFavorites(@Param('id') id: string, @Req() request: Request) {
+    if (!isUUID(id, 4)) {
+      this.logger.error(`Request to - ${request.url} - Invalid artist id`);
+      throw new BadRequestException('Invalid artist id');
+    }
+    const artist: Artists = await this.dataSource.manager.findOneBy<Artists>(
+      Artists,
+      {
+        id: id,
+      },
+    );
+    if (!artist) {
+      this.logger.error(
+        `Request to - ${request.url} - Artist with id - ${id} not found!`,
+      );
       throw new UnprocessableEntityException(
         `Artist with id - ${id} not found!`,
       );
+    }
     const newFavoritesArtist = new FavoritesArtists();
     newFavoritesArtist.artistID = id;
     const artistsEntity = this.dataSource.manager.create(
@@ -95,15 +115,25 @@ export class FavoritesController {
   @UseGuards(AuthGuard)
   @Post('album/:id')
   @HttpCode(201)
-  async addAlbumToFavorites(@Param('id') id: string) {
-    if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
-    const album: Albums = await this.dataSource.manager.findOneBy<Albums>(Albums, {
-      id: id,
-    });
-    if (!album)
+  async addAlbumToFavorites(@Param('id') id: string, @Req() request: Request) {
+    if (!isUUID(id, 4)) {
+      this.logger.error(`Request to - ${request.url} - Invalid album id`);
+      throw new BadRequestException('Invalid album id');
+    }
+    const album: Albums = await this.dataSource.manager.findOneBy<Albums>(
+      Albums,
+      {
+        id: id,
+      },
+    );
+    if (!album) {
+      this.logger.error(
+        `Request to - ${request.url} - Album with id - ${id} not found!`,
+      );
       throw new UnprocessableEntityException(
         `Album with id - ${id} not found!`,
       );
+    }
     const newFavoritesAlbum = new FavoritesAlbums();
     newFavoritesAlbum.albumID = id;
     const albumEntity = this.dataSource.manager.create(
@@ -116,37 +146,67 @@ export class FavoritesController {
   @UseGuards(AuthGuard)
   @Delete('track/:id')
   @HttpCode(204)
-  async deleteTrackFromFavorites(@Param('id') id: string) {
-    if (!isUUID(id, 4)) throw new BadRequestException('Invalid track id');
+  async deleteTrackFromFavorites(
+    @Param('id') id: string,
+    @Req() request: Request,
+  ) {
+    if (!isUUID(id, 4)) {
+      this.logger.error(`Request to - ${request.url} - Invalid track id`);
+      throw new BadRequestException('Invalid track id');
+    }
     const track = await this.dataSource.manager.findOneBy(FavoritesTracks, {
       trackID: id,
     });
-    if (!track) throw new NotFoundException(`Track with id - ${id} not found!`);
+    if (!track) {
+      this.logger.error(
+        `Request to - ${request.url} - Track with id - ${id} not found!`,
+      );
+      throw new NotFoundException(`Track with id - ${id} not found!`);
+    }
     return await this.dataSource.manager.delete(FavoritesTracks, track);
   }
 
   @UseGuards(AuthGuard)
   @Delete('artist/:id')
   @HttpCode(204)
-  async deleteArtistFromFavorites(@Param('id') id: string) {
-    if (!isUUID(id, 4)) throw new BadRequestException('Invalid artist id');
+  async deleteArtistFromFavorites(
+    @Param('id') id: string,
+    @Req() request: Request,
+  ) {
+    if (!isUUID(id, 4)) {
+      this.logger.error(`Request to - ${request.url} - Invalid artist id`);
+      throw new BadRequestException('Invalid artist id');
+    }
     const artist = await this.dataSource.manager.findOneBy(FavoritesArtists, {
       artistID: id,
     });
-    if (!artist)
+    if (!artist) {
+      this.logger.error(
+        `Request to - ${request.url} - Artist with id - ${id} not found!`,
+      );
       throw new NotFoundException(`Artist with id - ${id} not found!`);
+    }
     return await this.dataSource.manager.delete(FavoritesArtists, artist);
   }
 
   @UseGuards(AuthGuard)
   @Delete('album/:id')
   @HttpCode(204)
-  async deleteAlbumFromFavorites(@Param('id') id: string) {
+  async deleteAlbumFromFavorites(
+    @Param('id') id: string,
+    @Req() request: Request,
+  ) {
     if (!isUUID(id, 4)) throw new BadRequestException('Invalid album id');
     const album = await this.dataSource.manager.findOneBy(FavoritesAlbums, {
       albumID: id,
     });
-    if (!album) throw new NotFoundException(`Album with id - ${id} not found!`);
+    if (!album) {
+      this.logger.error(
+        `Request to - ${request.url} - Album with id - ${id} not found!`,
+      );
+      throw new NotFoundException(`Album with id - ${id} not found!`);
+    }
+    this.logger.log(`Album - ${JSON.stringify(album)} successfully deleted!`);
     return await this.dataSource.manager.delete(FavoritesAlbums, album);
   }
 }

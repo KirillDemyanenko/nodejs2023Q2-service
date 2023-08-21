@@ -1,7 +1,19 @@
-import { LoggerService } from "@nestjs/common";
-import { Colors } from "../constants";
+import { LoggerService } from '@nestjs/common';
+import { Colors } from '../constants';
+import { appendFile, open, writeFile } from 'fs';
+import { join } from 'path';
 
 export class LibraryLogger implements LoggerService {
+  path = join(process.cwd(), '/logs/log.txt');
+  constructor() {
+    open(this.path, 'r', (err) => {
+      if (err) {
+        writeFile(join(process.cwd(), '/logs/log.txt'), '', (err) => {
+          if (err) console.log('File not created!');
+        });
+      }
+    });
+  }
   private addDate(message: string) {
     return `[${new Date(Date.now()).toLocaleString()}] - `.concat(message);
   }
@@ -25,23 +37,49 @@ export class LibraryLogger implements LoggerService {
       }
     }
   }
-  log(message: string, ...optionalParams: any[]) {
-    console.log(this.colorize(this.addDate(message), Colors.green));
+  log(message: string) {
+    const log = this.addDate(message);
+    appendFile(
+      join(process.cwd(), '/logs/log.txt'),
+      log.concat('\n'),
+      () => {},
+    );
+    console.log(this.colorize(log, Colors.green));
   }
 
-  error(message: any, ...optionalParams: any[]) {
-    console.log(this.colorize(this.addDate(message), Colors.red));
+  error(message: any) {
+    const log = this.addDate(message);
+    appendFile(
+      join(process.cwd(), '/logs/log.txt'),
+      log.concat('\n'),
+      () => {},
+    );
+    console.log(this.colorize(log, Colors.red));
   }
 
-  warn(message: any, ...optionalParams: any[]) {
-    console.log(this.colorize(this.addDate(message), Colors.yellow));
+  warn(message: any) {
+    const log = this.addDate(message);
+    writeFile(join(process.cwd(), '/logs/log.txt'), log.concat('\n'), () => {});
+    console.log(this.colorize(log, Colors.yellow));
   }
 
-  debug?(message: any, ...optionalParams: any[]) {
-    console.log(this.colorize(this.addDate(message), Colors.white));
+  debug?(message: any) {
+    const log = this.addDate(message);
+    appendFile(
+      join(process.cwd(), '/logs/log.txt'),
+      log.concat('\n'),
+      () => {},
+    );
+    console.log(this.colorize(log, Colors.white));
   }
 
-  verbose?(message: any, ...optionalParams: any[]) {
-    console.log(this.colorize(this.addDate(message), Colors.blue));
+  verbose?(message: any) {
+    const log = this.addDate(message);
+    appendFile(
+      join(process.cwd(), '/logs/log.txt'),
+      log.concat('\n'),
+      () => {},
+    );
+    console.log(this.colorize(log, Colors.blue));
   }
 }
