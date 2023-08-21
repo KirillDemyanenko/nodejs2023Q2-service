@@ -1,5 +1,5 @@
-import { LoggerService } from '@nestjs/common';
-import { Colors } from '../constants';
+import { LoggerService } from "@nestjs/common";
+import { Colors } from "../constants";
 
 export class LibraryLogger implements LoggerService {
   private addDate(message: string) {
@@ -17,35 +17,30 @@ export class LibraryLogger implements LoggerService {
       case Colors.red: {
         return `\x1b[31m ${message} \x1b[0m`;
       }
+      case Colors.yellow: {
+        return `\x1b[33m ${message} \x1b[0m`;
+      }
+      default: {
+        return `\x1b[37m ${message} \x1b[0m`;
+      }
     }
   }
-  /**
-   * Write a 'log' level log.
-   */
   log(message: string, ...optionalParams: any[]) {
     console.log(this.colorize(this.addDate(message), Colors.green));
   }
 
-  /**
-   * Write an 'error' level log.
-   */
   error(message: any, ...optionalParams: any[]) {
     console.log(this.colorize(this.addDate(message), Colors.red));
   }
 
-  /**
-   * Write a 'warn' level log.
-   */
-  warn(message: any, ...optionalParams: any[]) {}
+  warn(message: any, ...optionalParams: any[]) {
+    console.log(this.colorize(this.addDate(message), Colors.yellow));
+  }
 
-  /**
-   * Write a 'debug' level log.
-   */
-  debug?(message: any, ...optionalParams: any[]) {}
+  debug?(message: any, ...optionalParams: any[]) {
+    console.log(this.colorize(this.addDate(message), Colors.white));
+  }
 
-  /**
-   * Write a 'verbose' level log.
-   */
   verbose?(message: any, ...optionalParams: any[]) {
     console.log(this.colorize(this.addDate(message), Colors.blue));
   }

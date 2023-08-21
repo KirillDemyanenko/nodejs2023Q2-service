@@ -41,7 +41,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Token not valid!');
     }
     this.logger.verbose(
-      `Assess to - ${request.url} - for - ${request.method} - ended with code - ${response.statusCode}`,
+      `Assess to - ${request.url} - for - ${request.method} - ended with code - ${response.statusCode}. Access granted.`,
     );
     return true;
   }
